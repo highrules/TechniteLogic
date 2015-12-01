@@ -54,6 +54,23 @@ namespace TechniteLogic
 				return Grid.RelativeCell.Invalid;
 			}
 
+            public static Grid.RelativeCell EvaluateUpper(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
+            {
+                options.Clear();
+                Console.WriteLine("Verscuth UpperNeighbor zu finden");
+                //var n = location.GetUpperNeighbor();
+                foreach(var n in location.GetUpperNeighbor())
+                {
+                    Grid.CellID cellLocation = location + n;
+                    int q = f(n, cellLocation);
+                    options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
+                    return options[0].Value;
+                }
+                //Grid.RelativeCell n = location.GetUpperNeighbor();
+                Out.Log(Significance.ProgramFatal, "Logic error");
+                return Grid.RelativeCell.Invalid;
+            }
+
 
 			/// <summary>
 			/// Determines a feasible, possibly ideal neighbor technite target, based on a given evaluation function
@@ -78,6 +95,11 @@ namespace TechniteLogic
 				}
 				);			
 			}
+
+            //public static Grid.RelativeCell EvaluateTopCell(Grid.CellID location, Func<Grid.RelativeCell, Technite, int> f)
+            //{
+                
+            //}
 
 			/// <summary>
 			/// Determines a feasible, possibly ideal technite neighbor cell that is at the very least on the same height level.
@@ -157,9 +179,34 @@ namespace TechniteLogic
 				}
 				);
 			}
+
+            /// <summary>
+            /// Determines the top neighbor cell or splits to top
+            /// </summary>
+            /// /// <param name="location"></param>
+			/// <returns></returns>
+            public static Grid.RelativeCell GetTopTarget(Grid.CellID location)
+            {
+                return EvaluateUpper(location, (relative, cell) =>
+                {
+                    int rs = 100;
+                    Grid.Content content = Grid.World.GetCell(cell).content;
+                    
+                    if (content != Grid.Content.Clear && content != Grid.Content.Water)
+                        rs -= 90;
+                    if (Grid.World.GetCell(cell.TopNeighbor).content == Grid.Content.Technite)
+                        return NotAChoice;  //probably a bad idea to split beneath technite
+
+                    if (Technite.EnoughSupportHere(cell))
+                        return relative.HeightDelta + rs;
+
+                    return NotAChoice;
+                }
+                );
+            }
 		}
 
-		private static Random random = new Random();
+        private static Random random = new Random();
 
 		/// <summary>
 		/// Central logic method. Invoked once per round to determine the next task for each technite.
@@ -174,18 +221,18 @@ namespace TechniteLogic
                 switch (spielphase)
                 {
                     case 0: //Wenn spawn unter der Erde -> Hochfressen
-                        Grid.RelativeCell target = Helper.GetSplitTarget(t.Location.TopNeighbor);
+                        Grid.RelativeCell target = Helper.GetTopTarget(t.Location);
                         //Grid.RelativeCell target = new Grid.RelativeCell(t.Location.TopNeighbor.StackID, 1);
-                        //if (target != Grid.RelativeCell.Invalid)
-                        
-                        //{
-                        //t.SetNextTask(Technite.Task.GrowTo, target);
-                        //}
-                        //else
-                        //{
-                        //    target = Helper.GetLitOrUpperTechnite(t.Location);
-                        //    t.SetNextTask(Technite.Task.TransferEnergyTo, target);
-                        //}
+                        if (target != Grid.RelativeCell.Invalid)
+                        {
+                            t.SetNextTask(Technite.Task.GrowTo, target);
+                        }
+                        else
+                        {
+                            Console.WriteLine("TopNeighbor is Technite");
+                            target = Helper.GetLitOrUpperTechnite(t.Location);
+                            t.SetNextTask(Technite.Task.TransferEnergyTo, target);
+                        }
                         break;
                     case 1: //an der Planetoberfläche
                             Console.WriteLine("test");

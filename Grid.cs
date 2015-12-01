@@ -541,7 +541,26 @@ namespace TechniteLogic
 						yield return new RelativeCell(delta);
 				}
 			}
-		}
+
+            /// <summary>
+			/// Enumerates through the only one valid/existing top neighboring cell, using relative descriptors
+			/// </summary>
+			/// <returns></returns>
+            public IEnumerable<RelativeCell> GetUpperNeighbor()
+            {
+                int upper = Layer + 1 < CellStack.LayersPerStack ? 1 : 0;
+                //uint numNeighbors = (uint)Grid.Graph.Nodes[StackID].Neighbors.Length;
+                //for (int delta = lower; delta <= upper; delta++)
+                //{
+                    //for (uint i = 0; i < numNeighbors; i++)
+                    //{
+                        //yield return new RelativeCell(i, delta);
+                    //}
+                    //if (delta != 0)
+                        yield return new RelativeCell(upper);
+                //}
+            }
+        }
 
 		internal static void BeginSession(float heightPerLayer, int numLayersPerStack)
 		{
