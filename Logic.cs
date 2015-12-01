@@ -57,15 +57,16 @@ namespace TechniteLogic
             public static Grid.RelativeCell EvaluateUpper(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
             {
                 options.Clear();
-                Console.WriteLine("Verscuth UpperNeighbor zu finden");
-                //var n = location.GetUpperNeighbor();
-                foreach(var n in location.GetUpperNeighbor())
+                Console.WriteLine("Versucht UpperNeighbor zu finden");
+                //Grid.RelativeCell n = location.GetMyUpperNeighbor(location);
+                foreach(var n in location.GetRelativeUpperNeighbors())
                 {
                     Grid.CellID cellLocation = location + n;
                     int q = f(n, cellLocation);
                     options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
                     return options[0].Value;
                 }
+                
                 //Grid.RelativeCell n = location.GetUpperNeighbor();
                 Out.Log(Significance.ProgramFatal, "Logic error");
                 return Grid.RelativeCell.Invalid;
@@ -191,7 +192,7 @@ namespace TechniteLogic
                 {
                     int rs = 100;
                     Grid.Content content = Grid.World.GetCell(cell).content;
-                    
+
                     if (content != Grid.Content.Clear && content != Grid.Content.Water)
                         rs -= 90;
                     if (Grid.World.GetCell(cell.TopNeighbor).content == Grid.Content.Technite)
@@ -223,15 +224,25 @@ namespace TechniteLogic
                     case 0: //Wenn spawn unter der Erde -> Hochfressen
                         Grid.RelativeCell target = Helper.GetTopTarget(t.Location);
                         //Grid.RelativeCell target = new Grid.RelativeCell(t.Location.TopNeighbor.StackID, 1);
-                        if (target != Grid.RelativeCell.Invalid)
+                        if(t.CanSplit)
                         {
-                            t.SetNextTask(Technite.Task.GrowTo, target);
+                            if (target != Grid.RelativeCell.Invalid)
+                            {
+                                Console.WriteLine("target is valid, nämlich: " + target + " nicht zu vergessen: " + target.HeightDelta + " und " + target.NeighborIndex);
+                                t.SetNextTask(Technite.Task.GrowTo, target);
+                            }
+                            else
+                            {
+                                Console.WriteLine("TopNeighbor is Technite");
+                                target = Helper.GetLitOrUpperTechnite(t.Location);
+                                t.SetNextTask(Technite.Task.TransferEnergyTo, target);
+                            }
                         }
-                        else
+                        else if (t.CanConsume)
                         {
-                            Console.WriteLine("TopNeighbor is Technite");
-                            target = Helper.GetLitOrUpperTechnite(t.Location);
-                            t.SetNextTask(Technite.Task.TransferEnergyTo, target);
+                            target = Helper.GetFoodChoice(t.Location);
+                            //Grid.RelativeCell target = Helper.GetSplitTarget(t.Location);
+                            t.SetNextTask(Technite.Task.ConsumeSurroundingCell, target);
                         }
                         break;
                     case 1: //an der Planetoberfläche
