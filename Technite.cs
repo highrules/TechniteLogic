@@ -20,7 +20,7 @@ namespace TechniteLogic
 		/// Currently constant cost values. Will be moved into the protocol, and specified by the server soon.
 		/// </summary>
 		public static byte	ConsumeEnergyCost = 2,
-							GnatAtEnergyCost = 1,
+							GnawAtEnergyCost = 1,
 							SplitEnergyCost = 5,
 							SplitMatterCost = 5,
 							EnergyPackageSize = 5,
@@ -181,7 +181,7 @@ namespace TechniteLogic
 
 		public static readonly Resources	SplitCost = new Resources(SplitEnergyCost,SplitMatterCost), 
 												ConsumeCost = new Resources(ConsumeEnergyCost, 0),
-												GnawAtCost = new Resources(GnatAtEnergyCost, 0);
+												GnawAtCost = new Resources(GnawAtEnergyCost, 0);
 
 
 		/// <summary>
