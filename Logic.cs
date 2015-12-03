@@ -215,61 +215,84 @@ namespace TechniteLogic
             foreach (Technite t in Technite.All)
             {
                 t.SetCustomColor(new Technite.Color(255, 0, 0));
-
-                if (t.Location.Layer > 16)
+                
+                if (t.Location.Layer > 18)  //t.EnergyYieldPerRound > 4
                     spielphase = 1;
                 else spielphase = 0;
+                //if(t.Status.TTL <= 5) spielphase = 2;
                 switch (spielphase)
                 {
                     case 0: //Wenn spawn unter der Erde -> Hochfressen
                         Grid.RelativeCell target;
-                        //Grid.RelativeCell target = new Grid.RelativeCell(t.Location.TopNeighbor.StackID, 1);
-                        //if (target != Grid.RelativeCell.Invalid)
-                        
-                        //{
-                        //t.SetNextTask(Technite.Task.GrowTo, target);
-                        //}
-                        //else
-                        //{
-                        //    target = Helper.GetLitOrUpperTechnite(t.Location);
-                        //    t.SetNextTask(Technite.Task.TransferEnergyTo, target);
-                        //}
-                        //if (t.EnergyYieldPerRound > 0)
-                        //{
-                        //    spielphase = 1;
-                        //    target = Helper.GetFoodChoice(t.Location);
-                        //    t.SetNextTask(Technite.Task.GnawAtSurroundingCell, target);
-                        //    break;
-                        //}
+                        Grid.Content content;
+                        Grid.CellID absoluteTarget;
                         if (t.CanSplit)
                         {
                             target = Helper.GetSplitTarget(t.Location);
-                            if (target != Grid.RelativeCell.Invalid)
+                            absoluteTarget = t.Location + target;
+                            content = Grid.World.GetCell(absoluteTarget.TopNeighbor).content;
+                            if (target != Grid.RelativeCell.Invalid && content != Grid.Content.Technite)
                             {
                                 Console.WriteLine("target is valid, nämlich: " + target + " nicht zu vergessen: " + target.HeightDelta + " und " + target.NeighborIndex);
                                 t.SetNextTask(Technite.Task.GrowTo, target);
-                                
+                                break;                                
                             }
                             else
                             {
-                                Console.WriteLine("TopNeighbor is Technite");
-                                target = Helper.GetLitOrUpperTechnite(t.Location);
-                                t.SetNextTask(Technite.Task.TransferEnergyTo, target);
+                                Grid.RelativeCell energyTarget = Helper.GetUnlitOrLowerTechnite(t.Location);    //EnergieTarget sucht ein Technite, welches tiefer liegt, also möglicherweise weniger Energie bekommt
+                                Grid.RelativeCell matterTarget = Helper.GetLitOrUpperTechnite(t.Location);      //MatterTarget sucht ein Technite, welchers höher liegt, also möglicherweise Matter benötigt
+                            //if (target != Grid.RelativeCell.Invalid)
+                            //{
+                                if (t.CurrentResources.Energy > t.CurrentResources.Matter)
+                                {
+                                    if (energyTarget != Grid.RelativeCell.Invalid)
+                                    {
+                                        t.SetNextTask(Technite.Task.TransferEnergyTo, energyTarget);
+
+                                        Console.WriteLine("=====================");
+                                        Console.WriteLine("Energie transferiert an: " + energyTarget);
+                                        Console.WriteLine("=====================");
+                                        break;
+                                    }
+                                }
+                                if (matterTarget != Grid.RelativeCell.Invalid)
+                                {
+                                    t.SetNextTask(Technite.Task.TransferMatterTo, matterTarget);
+                                    Console.WriteLine("=====================");
+                                    Console.WriteLine("Matter transferiert an: " + matterTarget);
+                                    Console.WriteLine("=====================");
+                                    break;
+                                }
+
+                            //}
+                                //else
+                                //{
+                                //    t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
+                                //}
                             }
-                            break;
+                            //break;
                         }
-                        if (t.CanGnawAt)
+                        if (t.CanGnawAt && t.CurrentResources.Matter < 6)
                         {
                             Console.WriteLine("Voll am pimmeln");
                             target = Helper.GetFoodChoice(t.Location);
+                            if (target != Grid.RelativeCell.Invalid)
+                            {
+                                //absoluteTarget = t.Location + target;?????????????????????????????????
+                                //content = Grid.World.GetCell(absoluteTarget).content;?????????????????
+                                //if (Technite.MatterYield[] ) ?????????????????????????????????????????
+                                t.SetNextTask(Technite.Task.GnawAtSurroundingCell, target);
+                                break;
+                            }
                             //Grid.RelativeCell target = Helper.GetSplitTarget(t.Location);
-                            t.SetNextTask(Technite.Task.GnawAtSurroundingCell, target);
-                            break;
+                            
+                        }
+                        else
+                        {
+                            //Technite spart Energie zum splitten
                         }
                         t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
-                        break;
-
-                        
+                        continue;
                     case 1: //an der Planetoberfläche
                         //    Console.WriteLine("test");
                         //    if (Technite.All.Count() < 100)
@@ -292,15 +315,42 @@ namespace TechniteLogic
                         //    }
                         //break;
 
+
                         if (t.CanGnawAt)
                         {
                             target = Helper.GetSplitTarget(t.Location);
-                            t.SetNextTask(Technite.Task.GnawAtSurroundingCell, target);
-                            break;
+                            if (target != Grid.RelativeCell.Invalid)
+                            {
+                                t.SetNextTask(Technite.Task.GnawAtSurroundingCell, target);
+                                break;
+                            }
                         }
                         else t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
                         break;
-                    //case 2:
+
+                        //case 2:                                   Transfer von Matter und Energie
+                        //Grid.RelativeCell energyTarget = Helper.GetUnlitOrLowerTechnite(t.Location);    //EnergieTarget sucht ein Technite, welches tiefer liegt, also möglicherweise weniger Energie bekommt
+                        //Grid.RelativeCell matterTarget = Helper.GetLitOrUpperTechnite(t.Location);      //MatterTarget sucht ein Technite, welchers höher liegt, also möglicherweise Matter benötigt
+                        //if (t.CurrentResources.Energy > t.CurrentResources.Matter)
+                        //{
+                        //    if (energyTarget != Grid.RelativeCell.Invalid)
+                        //    {
+                        //       t.SetNextTask(Technite.Task.TransferEnergyTo, energyTarget, t.CurrentResources.Energy);
+
+                        //        Console.WriteLine("=====================");
+                        //        Console.WriteLine("Energie transferiert an: " + energyTarget, t.CurrentResources.Matter);
+                        //        Console.WriteLine("=====================");
+                        //        break;
+                        //    }
+                        //}
+                        //if (matterTarget != Grid.RelativeCell.Invalid)
+                        //{
+                        //    t.SetNextTask(Technite.Task.TransferMatterTo, matterTarget);
+                        //    Console.WriteLine("=====================");
+                        //    Console.WriteLine("Matter transferiert an: " + matterTarget);
+                        //    Console.WriteLine("=====================");
+                        //    break;
+                        //}
 
                 }
                 t.SetCustomColor(new Technite.Color(0, 0, 255));
