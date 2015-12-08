@@ -19,12 +19,13 @@ namespace TechniteLogic
 		/// <summary>
 		/// Currently constant cost values. Will be moved into the protocol, and specified by the server soon.
 		/// </summary>
-		public static byte	ConsumeEnergyCost = 2,
-							GnawAtEnergyCost = 1,
-							SplitEnergyCost = 5,
-							SplitMatterCost = 5,
-							EnergyPackageSize = 5,
-							MatterPackageSize = 5;
+        public static byte ConsumeEnergyCost = 2,
+                            GnawAtEnergyCost = 1,
+                            SplitEnergyCost = 5,
+                            SplitMatterCost = 5,
+                            EnergyPackageSize = 5,
+                            MatterPackageSize = 5;
+                                                    
         public static bool isLit = false;
 
 
