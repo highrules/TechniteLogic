@@ -91,23 +91,79 @@ namespace TechniteLogic
                 //}
             }
 
-            public static Grid.RelativeCell EvaluateUpper(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
+            public static Grid.RelativeCell EvaluateMountainChoices(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
             {
+                //suche höhergelegene leere Zelle über Matter
                 options.Clear();
-                Console.WriteLine("Versucht UpperNeighbor zu finden");
-                //Grid.RelativeCell n = location.GetMyUpperNeighbor(location);
-                foreach (var n in location.GetRelativeUpperNeighbors())
+                int total = 0;
+                foreach (var n in location.GetRelativeEqualOrUpperNeighbors())  //GetRelativeUpperNeighbors effizienter
                 {
                     Grid.CellID cellLocation = location + n;
-                    int q = f(n, cellLocation);
-                    options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
-                    return options[0].Value;
+                    if(cellLocation.Layer >= location.Layer)
+                    {
+                        int q = f(n, cellLocation);
+                        if (q > 0)
+                        {
+                            total += q;
+                            options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
+                        }
+                    }
                 }
-
-                //Grid.RelativeCell n = location.GetUpperNeighbor();
-                Out.Log(Significance.ProgramFatal, "Logic error");
-                return Grid.RelativeCell.Invalid;
+                if (total == 0)
+                    return Grid.RelativeCell.Invalid;
+                if (options.Count == 1)
+                    return options[0].Value;
+                int c = random.Next(total);
+                return options[c].Value;
+                //Out.Log(Significance.ProgramFatal, "Logic error");
+                //return Grid.RelativeCell.Invalid;
             }
+
+            public static Grid.RelativeCell EvaluateValleyChoices(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
+            {
+                //suche höhergelegene leere Zelle über Matter
+                options.Clear();
+                int total = 0;
+                foreach (var n in location.GetRelativeEqualOrLowerNeighbors())  //GetRelativeUpperNeighbors effizienter
+                {
+                    Grid.CellID cellLocation = location + n;
+                    if (cellLocation.Layer <= location.Layer)
+                    {
+                        int q = f(n, cellLocation);
+                        if (q > 0)
+                        {
+                            total += q;
+                            options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
+                        }
+                    }
+                }
+                if (total == 0)
+                    return Grid.RelativeCell.Invalid;
+                if (options.Count == 1)
+                    return options[0].Value;
+                int c = random.Next(total);
+                return options[c].Value;
+                //Out.Log(Significance.ProgramFatal, "Logic error");
+                //return Grid.RelativeCell.Invalid;
+            }
+
+            //public static Grid.RelativeCell EvaluateUpper(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
+            //{
+            //    options.Clear();
+            //    Console.WriteLine("Versucht UpperNeighbor zu finden");
+            //    //Grid.RelativeCell n = location.GetMyUpperNeighbor(location);
+            //    foreach (var n in location.GetRelativeUpperNeighbors())
+            //    {
+            //        Grid.CellID cellLocation = location + n;
+            //        int q = f(n, cellLocation);
+            //        options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
+            //        return options[0].Value;
+            //    }
+
+            //    //Grid.RelativeCell n = location.GetUpperNeighbor();
+            //    Out.Log(Significance.ProgramFatal, "Logic error");
+            //    return Grid.RelativeCell.Invalid;
+            //}
 
 
             /// <summary>
@@ -226,30 +282,86 @@ namespace TechniteLogic
                 );
             }
 
-            /// <summary>
-            /// Determines the top neighbor cell or splits to top
-            /// </summary>
-            /// /// <param name="location"></param>
-            /// <returns></returns>
-            public static Grid.RelativeCell GetTopTarget(Grid.CellID location)
+            public static Grid.RelativeCell GetMountainTarget(Grid.CellID location)
             {
-                return EvaluateUpper(location, (relative, cell) =>
+                return EvaluateMountainChoices(location, (relative, cell) =>
                 {
-                    int rs = 100;
-                    Grid.Content content = Grid.World.GetCell(cell).content;
+                    //Grid.Content content = Grid.World.GetCell(cell).content;
+                    //int rs = 100;
+                    //if (content != Grid.Content.Clear && content != Grid.Content.Water)
+                    //    rs -= 90;
+                    //if (Grid.World.GetCell(cell.TopNeighbor).content == Grid.Content.Technite)
+                    //    return NotAChoice;  //probably a bad idea to split beneath technite
 
-                    if (content != Grid.Content.Clear && content != Grid.Content.Water)
-                        rs -= 90;
-                    if (Grid.World.GetCell(cell.TopNeighbor).content == Grid.Content.Technite)
-                        return NotAChoice;  //probably a bad idea to split beneath technite
+                    //if (Technite.EnoughSupportHere(cell))
+                    //    return relative.HeightDelta + rs;
 
-                    if (Technite.EnoughSupportHere(cell))
-                        return relative.HeightDelta + rs;
+                    if (Grid.World.GetCell(cell).content == Grid.Content.Clear)
+                    {
+                        if (Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite)
+                        {
+                            if (Technite.EnoughSupportHere(cell))
+                                return 1;
+                        }
+                    }
 
                     return NotAChoice;
                 }
                 );
             }
+
+            public static Grid.RelativeCell GetValleyTarget(Grid.CellID location)
+            {
+                return EvaluateValleyChoices(location, (relative, cell) =>
+                {
+                    //Grid.Content content = Grid.World.GetCell(cell).content;
+                    //int rs = 100;
+                    //if (content != Grid.Content.Clear && content != Grid.Content.Water)
+                    //    rs -= 90;
+                    //if (Grid.World.GetCell(cell.TopNeighbor).content == Grid.Content.Technite)
+                    //    return NotAChoice;  //probably a bad idea to split beneath technite
+
+                    //if (Technite.EnoughSupportHere(cell))
+                    //    return relative.HeightDelta + rs;
+
+                    if (Grid.World.GetCell(cell).content == Grid.Content.Clear)
+                    {
+                        if (Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite)
+                        {
+                            if (Technite.EnoughSupportHere(cell))
+                                return 1;
+                        }
+                    }
+
+                    return NotAChoice;
+                }
+                );
+            }
+
+            /// <summary>
+            /// Determines the top neighbor cell or splits to top
+            /// </summary>
+            /// /// <param name="location"></param>
+            /// <returns></returns>
+            //public static Grid.RelativeCell GetTopTarget(Grid.CellID location)
+            //{
+            //    return EvaluateUpper(location, (relative, cell) =>
+            //    {
+            //        int rs = 100;
+            //        Grid.Content content = Grid.World.GetCell(cell).content;
+
+            //        if (content != Grid.Content.Clear && content != Grid.Content.Water)
+            //            rs -= 90;
+            //        if (Grid.World.GetCell(cell.TopNeighbor).content == Grid.Content.Technite)
+            //            return NotAChoice;  //probably a bad idea to split beneath technite
+
+            //        if (Technite.EnoughSupportHere(cell))
+            //            return relative.HeightDelta + rs;
+
+            //        return NotAChoice;
+            //    }
+            //    );
+            //}
         }
 
         private static Random random = new Random();
@@ -264,9 +376,10 @@ namespace TechniteLogic
 
             foreach (Technite t in Technite.All)
             {
-                if (t.Location.Layer > 18)  //t.EnergyYieldPerRound > 4
+                if (t.Location.Layer > 15)  //t.EnergyYieldPerRound > 4
                     spielphase = 1;
-                else spielphase = 0;
+                else
+                    spielphase = 0;
 
                 if (t.Status.TTL <= 5)
                     spielphase = 2;
@@ -280,7 +393,7 @@ namespace TechniteLogic
                         Grid.CellID absoluteTarget;
                         if (t.CanSplit)
                         {
-                            target = Helper.GetSplitTarget(t.Location);
+                            target = Helper.GetSplitTarget(t.Location);     //funktion optimieren, indem nur topneighbor ausgewählt werden um nonetask zu vermeiden
                             if (target != Grid.RelativeCell.Invalid)
                             {
                                 absoluteTarget = t.Location + target;
@@ -317,9 +430,33 @@ namespace TechniteLogic
                             //Technite spart Energie zum splitten
                         }
                         t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
-                        continue;
+                        break;
                     case 1:
                         //an der Planetoberfläche
+                        if(t.CanSplit)
+                        {
+                            target = Helper.GetMountainTarget(t.Location); //optimieren durch leere Zelle
+
+                            //if(target == Grid.RelativeCell.Invalid)
+                            //{
+                            //    target = Helper.GetSplitTarget(t.Location);
+                            //}
+                            if (target != Grid.RelativeCell.Invalid)
+                            {
+                                t.SetNextTask(Technite.Task.GrowTo, target);
+                                break;
+                            }
+
+                            target = Helper.GetValleyTarget(t.Location);
+
+                            if (target != Grid.RelativeCell.Invalid)
+                            {
+                                t.SetNextTask(Technite.Task.GrowTo, target);
+                                break;
+                            }
+                        }
+
+                        //auf Berge bauen
                         if (t.CanGnawAt)
                         {
                             target = Helper.GetMyGnawChoice(t.Location);
@@ -330,7 +467,7 @@ namespace TechniteLogic
                             }
                         }
                         else t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
-                        break;
+                        goto case 2;
 
                     case 2:
                         // transfer matter + energy before dead
@@ -358,6 +495,11 @@ namespace TechniteLogic
                             break;
                         }
                         t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
+                        break;
+                    case 3: //horizontale Ausbreitung, wenn Technite auf NormalNull
+                        //von case 0
+
+                        //nach case 1, wenn man an Berg trifft
                         break;
                 }
             }
