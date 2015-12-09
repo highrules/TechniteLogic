@@ -491,20 +491,36 @@ namespace TechniteLogic
 				}
 			}
 
-            public IEnumerable<RelativeCell> GetRelativeUpperNeighbors()
+            public IEnumerable<RelativeCell> GetRelativeEqualOrUpperNeighbors()
             {
-                int /*lower = Layer > 0 ? -1 : 0,*/
+                int midi = 0,
                     upper = Layer + 1 < CellStack.LayersPerStack ? 1 : 0;
                 uint numNeighbors = (uint)Grid.Graph.Nodes[StackID].Neighbors.Length;
-                //for (int delta = lower; delta <= upper; delta++)
-                //{
+                for (int delta = midi; delta <= upper; delta++)
+                {
                     for (uint i = 0; i < numNeighbors; i++)
                     {
-                        yield return new RelativeCell(i, upper);
+                        yield return new RelativeCell(i, delta);
                     }
                     if (upper != 0)
-                        yield return new RelativeCell(upper);
-                //}
+                        yield return new RelativeCell(delta);
+                }
+            }
+
+            public IEnumerable<RelativeCell> GetRelativeEqualOrLowerNeighbors()
+            {
+                int start = Layer > 0 ? -1 : 0,
+                    midi = 0;
+                uint numNeighbors = (uint)Grid.Graph.Nodes[StackID].Neighbors.Length;
+                for (int delta = start; delta <= midi; delta++)
+                {
+                    for (uint i = 0; i < numNeighbors; i++)
+                    {
+                        yield return new RelativeCell(i, delta);
+                    }
+                    //if (midi != 0)
+                    //    yield return new RelativeCell(delta);
+                }
             }
 
             /// <summary>
