@@ -376,12 +376,16 @@ namespace TechniteLogic
 
             foreach (Technite t in Technite.All)
             {
-                if (t.Location.Layer > 15)  //t.EnergyYieldPerRound > 4
+                if (t.Location.Layer > 16)  //t.EnergyYieldPerRound > 4
+                {
                     spielphase = 1;
+                    if (t.Location.Layer == 17)
+                        spielphase = 3;
+                }
                 else
                     spielphase = 0;
 
-                if (t.Status.TTL <= 5)
+                if (t.Status.TTL <= 2)
                     spielphase = 2;
 
                 switch (spielphase)
@@ -499,8 +503,41 @@ namespace TechniteLogic
                     case 3: //horizontale Ausbreitung, wenn Technite auf NormalNull
                         //von case 0
 
+                        if (t.CanSplit)
+                        {
+                            // pärfoamänz
+                            target = Helper.GetMountainTarget(t.Location);
+                            //if(target != Grid.RelativeCell.Invalid)
+                            //    goto case 1;
+                            //else
+                            //{
+                            //    target =
+                            //    t.SetNextTask(Technite.Task.GrowTo, target);
+                            //    break;
+                            //}
+                            if (target != Grid.RelativeCell.Invalid)
+                            {
+                                t.SetNextTask(Technite.Task.GrowTo, target);
+                                break;
+                            }
+                            target = Helper.GetSplitTarget(t.Location);
+                            if(target != Grid.RelativeCell.Invalid)
+                            {
+                                t.SetNextTask(Technite.Task.GrowTo, target);
+                                break;
+                            }
+                        }
+                        if(t.CanGnawAt)
+                        {
+                            target = Helper.GetMyGnawChoice(t.Location);
+                            if (target != Grid.RelativeCell.Invalid)
+                            {
+                                t.SetNextTask(Technite.Task.GnawAtSurroundingCell, target);
+                                break;
+                            }
+                        }
+                        goto case 2;
                         //nach case 1, wenn man an Berg trifft
-                        break;
                 }
             }
             ////let's do some simple processing
