@@ -289,7 +289,30 @@ namespace TechniteLogic
             {
                 return EvaluateUpperChoices(location, (relative, cell) =>
                 {
-                    if (Grid.World.GetCell(cell).content == Grid.Content.Clear)
+                    if (Grid.World.GetCell(cell).content == Grid.Content.Clear || Grid.World.GetCell(cell).content == Grid.Content.Water)
+                    {
+                        if (Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite)
+                        {
+                            if (Technite.EnoughSupportHere(cell))
+                                return 1;
+                        }
+                    }
+                    return NotAChoice;
+                }
+                );
+            }
+
+            /// <summary>
+            /// Determines a cell of a horizontal neighbor
+            /// von uns
+            /// </summary>
+            /// <param name="location"></param>
+            /// <returns></returns>
+            public static Grid.RelativeCell GetHorizontalSplitTarget(Grid.CellID location)
+            {
+                return EvaluateHorizontalChoices(location, (relative, cell) =>
+                {
+                    if (Grid.World.GetCell(cell).content == Grid.Content.Clear || Grid.World.GetCell(cell).content == Grid.Content.Water)
                     {
                         if (Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite)
                         {
@@ -312,7 +335,7 @@ namespace TechniteLogic
             {
                 return EvaluateLowerChoices(location, (relative, cell) =>
                 {
-                    if (Grid.World.GetCell(cell).content == Grid.Content.Clear)
+                    if (Grid.World.GetCell(cell).content == Grid.Content.Clear || Grid.World.GetCell(cell).content == Grid.Content.Water)
                     {
                         if (Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite)
                         {
@@ -356,13 +379,149 @@ namespace TechniteLogic
 
 		private static Random random = new Random();
 
+        public static int SetGamePhase(Technite t)                 // private public?
+        {
+            int gamePhase = 4;
+
+            if (t.CanSplit)
+            {
+                gamePhase = 1;
+            }
+            else if (t.CanGnawAt)
+            {
+                gamePhase = 0;
+            }
+            else if (t.CurrentResources.Matter >= t.CurrentResources.Energy)
+            {
+                gamePhase = 2;
+            }
+            else
+            {
+                gamePhase = 3;
+            }
+
+            if (t.Status.TTL <= 2)
+                gamePhase = 4;
+             
+            return gamePhase;
+        }
+
 		/// <summary>
 		/// Central logic method. Invoked once per round to determine the next task for each technite.
 		/// </summary>
 		public static void ProcessTechnites()
 		{
 			Out.Log(Significance.Common, "ProcessTechnites()");
+            int gamePhase;
+            Grid.RelativeCell target;
+            Grid.Content content;
+            Grid.CellID absoluteTarget;
+            foreach (Technite t in Technite.All)
+            {
+                gamePhase = SetGamePhase(t);
+                switch (gamePhase)
+                {
+                        
+                    case 0: // nagen
+                        if (t.CanGnawAt)
+                        {
+                            target = Helper.GetMaxMatterGnawChoice(t.Location);
 
+                            if (target != Grid.RelativeCell.Invalid)
+                            {
+
+                                absoluteTarget = t.Location + target;
+                                content = Grid.World.GetCell(absoluteTarget).content;
+                                int yield = Technite.MatterYield[(int)content];	//zero is zero, no exceptions
+
+                                if (yield > 1)
+                                {
+                                    // nage nicht an zellen, die keine Matter liefern
+                                    t.SetNextTask(Technite.Task.GnawAtSurroundingCell, target);
+                                    break;
+                                }
+                                else if (yield == 1)
+                                {
+                                    // letzter Ausweg, wenn Spawnpunkt im Wasser und keine Matter verfügbar ist
+                                    t.SetNextTask(Technite.Task.ConsumeSurroundingCell, target);
+                                    break;
+                                }
+                            }
+                        }
+                        goto case 1;
+                    case 1: // split
+                        if (t.CanSplit)
+                        {
+                            target = Helper.GetUpperSplitTarget(t.Location);
+                            if (target != Grid.RelativeCell.Invalid)
+                            {
+                                t.SetNextTask(Technite.Task.GrowTo, target);
+                                break;
+                            }
+                            target = Helper.GetHorizontalSplitTarget(t.Location);
+                            if (target != Grid.RelativeCell.Invalid)
+                            {
+                                t.SetNextTask(Technite.Task.GrowTo, target);
+                                break;
+                            }
+                            target = Helper.GetLowerSplitTarget(t.Location);
+                            if (target != Grid.RelativeCell.Invalid)
+                            {
+                                t.SetNextTask(Technite.Task.GrowTo, target);
+                                break;
+                            }
+                        }
+                        goto case 2;
+                    case 2: // transfer half matter to top technites toDo: funktion evaluate best transfer choice (nachbar hat max matter oder ttl feld klein)
+                        target = Helper.GetLitOrUpperTechnite(t.Location);
+                        byte halfRes = (byte)(t.CurrentResources.Matter / 2);
+
+                        if (target != Grid.RelativeCell.Invalid && halfRes > 0)
+                        {
+                            t.SetNextTask(Technite.Task.TransferMatterTo, target, halfRes);
+                            break;
+                        }
+                        goto case 3;
+                    case 3: // transfer energy half
+                        target = Helper.GetUnlitOrLowerTechnite(t.Location);
+                        halfRes = (byte)(t.CurrentResources.Energy / 2);
+                        if (target != Grid.RelativeCell.Invalid && halfRes > 0)
+                        {
+                            t.SetNextTask(Technite.Task.TransferEnergyTo, target, halfRes);
+                            break;
+                        }
+                        goto case 4;
+                    case 4: // ttl transfer all energy and matter
+                        //target sucht zuerst ein Technite, welches tiefer liegt, also möglicherweise weniger Energie bekommt
+                        target = Helper.GetLitOrUpperTechnite(t.Location);    
+ 
+                        if (t.CurrentResources.Matter >= t.CurrentResources.Energy)
+                        {
+                            if (target != Grid.RelativeCell.Invalid && t.CurrentResources.Matter > 0)
+                            {
+                                t.SetNextTask(Technite.Task.TransferMatterTo, target, t.CurrentResources.Matter);
+                                break;
+                            }
+                        }
+                        //target sucht danach ein Technite, welchers höher liegt, also möglicherweise Matter benötigt
+                        target = Helper.GetUnlitOrLowerTechnite(t.Location);
+                        if (target != Grid.RelativeCell.Invalid && t.CurrentResources.Energy > 0)
+                        {
+                            t.SetNextTask(Technite.Task.TransferEnergyTo, target, t.CurrentResources.Energy);
+                            break;
+                        }
+                        t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
+                        break;
+                    //case 123: // sudden death mode
+                    //    target = Helper.GetFoodChoice(t.Location);
+                    //    if (target != Grid.RelativeCell.Invalid)
+                    //        t.SetNextTask(Technite.Task.ConsumeSurroundingCell, target);
+                    //    else
+                    //        t.SetNextTask(Technite.Task.None, target);
+                    //    break;
+                };
+            }
+            
 			//let's do some simple processing
 
 			//			bool slightlyVerbose = Technite.All.Count() < 20;
