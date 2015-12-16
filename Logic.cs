@@ -54,6 +54,131 @@ namespace TechniteLogic
 				return Grid.RelativeCell.Invalid;
 			}
 
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            /// <summary>
+            /// Evaluated all targets matter values and return max matter target.
+            /// von uns
+            /// </summary>
+            /// <param name="location"></param>
+            /// <returns></returns>
+            public static Grid.RelativeCell EvaluateMaxMatterGnawChoices(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
+            {
+                options.Clear();
+                foreach (var n in location.GetRelativeNeighbors())
+                {
+                    Grid.CellID cellLocation = location + n;
+                    int q = f(n, cellLocation);
+                    if (q > 0)
+                    {
+                        options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
+                    }
+                }
+                if (options.Count == 0)
+                    return Grid.RelativeCell.Invalid;
+                if (options.Count == 1)
+                    return options[0].Value;
+                int maxYield = 0;
+                Grid.RelativeCell maxOption = Grid.RelativeCell.Invalid;
+                foreach (var o in options)
+                {
+                    if (maxYield <= o.Key)
+                    {
+                        maxYield = o.Key;
+                        maxOption = o.Value;
+                    }
+                }
+                return maxOption;
+            }
+
+            /// <summary>
+            /// Returns upper neighbor choice
+            /// von uns
+            /// </summary>
+            /// <param name="location"></param>
+            /// <returns></returns>
+            public static Grid.RelativeCell EvaluateUpperChoices(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
+            {
+                options.Clear();
+                int total = 0;
+                foreach (var n in location.GetRelativeUpperNeighbors())  //GetRelativeUpperNeighbors effizienter mit delta übergabe
+                {
+                    Grid.CellID cellLocation = location + n;
+                    if (cellLocation.Layer >= location.Layer)
+                    {
+                        int q = f(n, cellLocation);
+                        if (q > 0)
+                        {
+                            total += q;
+                            options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
+                        }
+                    }
+                }
+                if (total == 0)
+                    return Grid.RelativeCell.Invalid;
+                if (options.Count == 1)
+                    return options[0].Value;
+                int c = random.Next(total);
+                return options[c].Value;
+            }
+
+            /// <summary>
+            /// Returns lower neighbor choice
+            /// von uns
+            /// </summary>
+            /// <param name="location"></param>
+            /// <param name="f"></param>
+            /// <returns></returns>
+            public static Grid.RelativeCell EvaluateLowerChoices(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
+            {
+                options.Clear();
+                int total = 0;
+                foreach (var n in location.GetRelativeLowerNeighbors())  //GetRelativeUpperNeighbors effizienter
+                {
+                    Grid.CellID cellLocation = location + n;
+                    if (cellLocation.Layer <= location.Layer)
+                    {
+                        int q = f(n, cellLocation);
+                        if (q > 0)
+                        {
+                            total += q;
+                            options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
+                        }
+                    }
+                }
+                if (total == 0)
+                    return Grid.RelativeCell.Invalid;
+                if (options.Count == 1)
+                    return options[0].Value;
+                int c = random.Next(total);
+                return options[c].Value;
+            }
+
+            public static Grid.RelativeCell EvaluateHorizontalChoices(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
+            {
+                options.Clear();
+                int total = 0;
+                foreach (var n in location.GetRelativeHorizontalNeighbors())  //GetRelativeUpperNeighbors effizienter mit delta übergeben
+                {
+                    Grid.CellID cellLocation = location + n;
+
+                    int q = f(n, cellLocation);
+                    if (q > 0)
+                    {
+                        total += q;
+                        options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
+                    }
+
+                }
+                if (total == 0)
+                    return Grid.RelativeCell.Invalid;
+                if (options.Count == 1)
+                    return options[0].Value;
+                int c = random.Next(total);
+                return options[c].Value;
+            }
+
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 			/// <summary>
 			/// Determines a feasible, possibly ideal neighbor technite target, based on a given evaluation function
@@ -134,6 +259,72 @@ namespace TechniteLogic
 				);
 			}
 
+            /// <summary>
+            /// Determines a gnaw source in the neighborhood of the specified location
+            /// von uns
+            /// </summary>
+            /// <param name="location"></param>
+            /// <returns></returns>
+            public static Grid.RelativeCell GetMaxMatterGnawChoice(Grid.CellID location)
+            {
+                return EvaluateMaxMatterGnawChoices(location, (relative, cell) =>
+                {
+                    Grid.Content content = Grid.World.GetCell(cell).content;
+                    int yield = Technite.MatterYield[(int)content];	//zero is zero, no exceptions
+                    // verhindert das techniten über andere techniten bauen und damit lit = false werden könnte
+                    if (Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite)
+                        return yield;
+                    return NotAChoice;
+                }
+                );
+            }
+
+            /// <summary>
+            /// Determines a cell of the upper neighbor
+            /// von uns
+            /// </summary>
+            /// <param name="location"></param>
+            /// <returns></returns>
+            public static Grid.RelativeCell GetUpperSplitTarget(Grid.CellID location)
+            {
+                return EvaluateUpperChoices(location, (relative, cell) =>
+                {
+                    if (Grid.World.GetCell(cell).content == Grid.Content.Clear)
+                    {
+                        if (Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite)
+                        {
+                            if (Technite.EnoughSupportHere(cell))
+                                return 1;
+                        }
+                    }
+                    return NotAChoice;
+                }
+                );
+            }
+
+            /// <summary>
+            /// Determines a cell of the lower neighbor
+            /// von uns
+            /// </summary>
+            /// <param name="location"></param>
+            /// <returns></returns>
+            public static Grid.RelativeCell GetLowerSplitTarget(Grid.CellID location)
+            {
+                return EvaluateLowerChoices(location, (relative, cell) =>
+                {
+                    if (Grid.World.GetCell(cell).content == Grid.Content.Clear)
+                    {
+                        if (Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite)
+                        {
+                            if (Technite.EnoughSupportHere(cell))
+                                return 1;
+                        }
+                    }
+                    return NotAChoice;
+                }
+                );
+            }
+
 			/// <summary>
 			/// Determines a feasible neighborhood cell that can work as a replication destination.
 			/// </summary>
@@ -157,7 +348,11 @@ namespace TechniteLogic
 				}
 				);
 			}
+
 		}
+
+
+
 
 		private static Random random = new Random();
 
@@ -172,146 +367,7 @@ namespace TechniteLogic
 
 			//			bool slightlyVerbose = Technite.All.Count() < 20;
 
-			int at = 0;
-			foreach (Technite t in Technite.All)
-			{
-				at++;
-				if (at < 20)
-					Out.Log(Significance.Low, "Processing "+t);
-				else
-					if (at == 20)
-						Out.Log(Significance.Low, "...");
-
-				if (t.Status.TTL <= 1)
-					t.SetCustomColor(new Technite.Color(255, 0, 0));
-				else
-				{
-					float r0 = Grid.CellStack.HeightPerLayer * 2f;
-					float r1 = r0 + Grid.CellStack.HeightPerLayer * 2f;
-					float r02 = r0*r0,
-							r12 = r1*r1;
-					int atRange = 2;
-					foreach (var obj in Objects.AllGameObjects)
-					{
-						float d2 = Vec.QuadraticDistance(obj.ID.Location.WorldPosition,t.Location.WorldPosition);
-						if (d2 < r12)
-						{
-							atRange = 1;
-							if (d2 < r02)
-							{
-								atRange = 0;
-								break;
-							}
-						}
-					}
-					//if (atRange == 0)
-					//	t.SetCustomColor(new Technite.Color(255,0,0));
-					//else
-						if (atRange == 0)
-							t.SetCustomColor(new Technite.Color(32, 32, 32));
-						else
-							t.UnsetCustomColor();
-				}
-				//this will color technites depending on their up-direction in the world:
-				//t.SetCustomColor(new Technite.Color(t.Location.UpDirection*0.5f + 0.5f));
-
-				if (t.LastTaskResult == Technite.TaskResult.MoreWorkNeeded)
-				{
-					bool skip = false;
-					switch (t.LastTask)
-					{
-						case Technite.Task.ConsumeSurroundingCell:
-							skip = t.CanConsume;
-							break;
-						case Technite.Task.GrowTo:
-							skip = t.CanSplit;
-							break;
-					}
-					if (skip)
-					{
-						//Out.Log(Significance.Common, "Still busy doing last job ("+t.LastTask+"). Allowing technite to continue");
-						continue;
-					}
-				}
-				if (t.CurrentResources.Energy > 9 && random.NextDouble() < 0.1)
-				{
-					t.SetNextTask(Technite.Task.Scan, Grid.RelativeCell.Self, t.CurrentResources.Energy);
-					continue;
-				}
-				bool tryTransfer = false;
-				if (t.CanSplit)
-				{
-					Grid.RelativeCell target = Helper.GetSplitTarget(t.Location);
-					if (target != Grid.RelativeCell.Invalid)
-					{
-						t.SetNextTask(Technite.Task.GrowTo, target);
-					}
-					else
-					{
-						//Out.Log(Significance.Unusual, "Unable to find adequate splitting destination");
-						tryTransfer = true;
-					}
-				}
-				else
-				{
-					bool waitForSplitEnergy = t.Status.Lit && t.CurrentResources.Matter >= Technite.SplitMatterCost;
-                    if (t.CanGnawAt && !waitForSplitEnergy)
-					{
-						Grid.RelativeCell target = Helper.GetFoodChoice(t.Location);
-						if (target != Grid.RelativeCell.Invalid)
-						{
-							t.SetNextTask(Technite.Task.GnawAtSurroundingCell, target);
-						}
-						else
-						{
-							//Out.Log(Significance.Unusual, "Unable to find adequate eating destination");
-							tryTransfer = true;
-						}
-					}
-					else
-					{
-						//Out.Log(Significance.Unusual, "Insufficient resources to do anything");
-						tryTransfer = !waitForSplitEnergy && t.CurrentResources != Technite.Resources.Zero;
-					}
-				}
-				if (tryTransfer)
-				{
-					Grid.RelativeCell target = Grid.RelativeCell.Invalid;
-					Technite.Task task;
-					byte amount = 0;
-                    if (t.CurrentResources.Matter > t.CurrentResources.Energy)
-					{
-						//Out.Log(Significance.Low, "Trying to transfer matter");
-						task = Technite.Task.TransferMatterTo;
-						target = Helper.GetLitOrUpperTechnite(t.Location);
-						amount = t.CurrentResources.Matter;
-					}
-					else
-					{
-						//Out.Log(Significance.Low, "Trying to transfer energy");
-						task = Technite.Task.TransferEnergyTo;
-						target = Helper.GetUnlitOrLowerTechnite(t.Location);
-						amount = t.CurrentResources.Energy;
-
-					}
-					if (target != Grid.RelativeCell.Invalid)
-					{
-						t.SetNextTask(task, target, amount);
-					}
-					else
-					{
-						//Out.Log(Significance.Unusual, "Unable to find adequate transfer target");
-						tryTransfer = true;
-					}
-
-
-				}
-
-
-			}
-
-
+			
 		}
 	}
 }
-//asd
