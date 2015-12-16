@@ -541,6 +541,56 @@ namespace TechniteLogic
 						yield return new RelativeCell(delta);
 				}
 			}
+
+            /// <summary>
+            /// Returns all upper neighbors of the actual position
+            /// von uns
+            /// </summary>
+            /// <returns></returns>
+            public IEnumerable<RelativeCell> GetRelativeUpperNeighbors()
+            {
+                int upper = Layer + 1 < CellStack.LayersPerStack ? 1 : 0;
+                uint numNeighbors = (uint)Grid.Graph.Nodes[StackID].Neighbors.Length;
+                for (uint i = 0; i < numNeighbors; i++)
+                {
+                    yield return new RelativeCell(i, upper);
+                }
+                if (upper != 0)
+                    yield return new RelativeCell(upper);
+            }
+
+            /// <summary>
+            /// Returns all lower neighbors of the actual position
+            /// if the actual cell is on the bottom of the grid it returns the actual layer
+            /// von uns
+            /// </summary>
+            /// <returns></returns>
+            public IEnumerable<RelativeCell> GetRelativeLowerNeighbors()
+            {
+                int lower = Layer > 0 ? -1 : 0;
+                uint numNeighbors = (uint)Grid.Graph.Nodes[StackID].Neighbors.Length;
+                for (uint i = 0; i < numNeighbors; i++)
+                {
+                    yield return new RelativeCell(i, lower);
+                }
+                if (lower != 0)
+                    yield return new RelativeCell(lower);
+            }
+
+            /// <summary>
+            /// Returns all neighbors of the actual layer
+            /// von uns
+            /// </summary>
+            /// <returns></returns>
+            public IEnumerable<RelativeCell> GetRelativeHorizontalNeighbors()
+            {
+                int same = 0;
+                uint numNeighbors = (uint)Grid.Graph.Nodes[StackID].Neighbors.Length;
+                for (uint i = 0; i < numNeighbors; i++)
+                {
+                    yield return new RelativeCell(i, same);
+                }
+            }
 		}
 
 		internal static void BeginSession(float heightPerLayer, int numLayersPerStack)
