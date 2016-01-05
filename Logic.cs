@@ -91,77 +91,103 @@ namespace TechniteLogic
                 return maxOption;
             }
 
-            /// <summary>
-            /// Returns upper neighbor choice
-            /// von uns
-            /// </summary>
-            /// <param name="location"></param>
-            /// <returns></returns>
-            public static Grid.RelativeCell EvaluateUpperChoices(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
+            ///// <summary>
+            ///// Returns upper neighbor choice
+            ///// von uns
+            ///// </summary>
+            ///// <param name="location"></param>
+            ///// <returns></returns>
+            //public static Grid.RelativeCell EvaluateUpperChoices(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
+            //{
+            //    options.Clear();
+            //    int total = 0;
+            //    foreach (var n in location.GetRelativeDeltaNeighbors(1))  //GetRelativeUpperNeighbors effizienter mit delta übergabe
+            //    {
+            //        Grid.CellID cellLocation = location + n;
+            //        if (cellLocation.Layer >= location.Layer)
+            //        {
+            //            int q = f(n, cellLocation);
+            //            if (q > 0)
+            //            {
+            //                total += q;
+            //                options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
+            //            }
+            //        }
+            //    }
+            //    if (total == 0)
+            //        return Grid.RelativeCell.Invalid;
+            //    if (options.Count == 1)
+            //        return options[0].Value;
+            //    int c = random.Next(total);
+            //    return options[c].Value;
+            //}
+
+            ///// <summary>
+            ///// Returns lower neighbor choice
+            ///// von uns
+            ///// </summary>
+            ///// <param name="location"></param>
+            ///// <param name="f"></param>
+            ///// <returns></returns>
+            //public static Grid.RelativeCell EvaluateLowerChoices(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
+            //{
+            //    options.Clear();
+            //    int total = 0;
+            //    foreach (var n in location.GetRelativeDeltaNeighbors(-1))  //GetRelativeUpperNeighbors effizienter
+            //    {
+            //        Grid.CellID cellLocation = location + n;
+            //        if (cellLocation.Layer <= location.Layer)
+            //        {
+            //            int q = f(n, cellLocation);
+            //            if (q > 0)
+            //            {
+            //                total += q;
+            //                options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
+            //            }
+            //        }
+            //    }
+            //    if (total == 0)
+            //        return Grid.RelativeCell.Invalid;
+            //    if (options.Count == 1)
+            //        return options[0].Value;
+            //    int c = random.Next(total);
+            //    return options[c].Value;
+            //}
+
+            //public static Grid.RelativeCell EvaluateHorizontalChoices(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
+            //{
+            //    options.Clear();
+            //    int total = 0;
+            //    foreach (var n in location.GetRelativeDeltaNeighbors(0))  //GetRelativeUpperNeighbors effizienter mit delta übergeben
+            //    {
+            //        Grid.CellID cellLocation = location + n;
+
+            //        int q = f(n, cellLocation);
+            //        if (q > 0)
+            //        {
+            //            total += q;
+            //            options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
+            //        }
+
+            //    }
+            //    if (total == 0)
+            //        return Grid.RelativeCell.Invalid;
+            //    if (options.Count == 1)
+            //        return options[0].Value;
+            //    int c = random.Next(total);
+            //    return options[c].Value;
+            //}
+
+            public static Grid.RelativeCell EvaluateDeltaChoices(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f, positions delta)
             {
                 options.Clear();
                 int total = 0;
-                foreach (var n in location.GetRelativeDeltaNeighbors(1))  //GetRelativeUpperNeighbors effizienter mit delta übergabe
+
+                
+                foreach (var n in location.GetRelativeDeltaNeighbors((int)delta))  //GetRelativeUpperNeighbors effizienter mit delta übergeben
                 {
                     Grid.CellID cellLocation = location + n;
-                    if (cellLocation.Layer >= location.Layer)
-                    {
-                        int q = f(n, cellLocation);
-                        if (q > 0)
-                        {
-                            total += q;
-                            options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
-                        }
-                    }
-                }
-                if (total == 0)
-                    return Grid.RelativeCell.Invalid;
-                if (options.Count == 1)
-                    return options[0].Value;
-                int c = random.Next(total);
-                return options[c].Value;
-            }
-
-            /// <summary>
-            /// Returns lower neighbor choice
-            /// von uns
-            /// </summary>
-            /// <param name="location"></param>
-            /// <param name="f"></param>
-            /// <returns></returns>
-            public static Grid.RelativeCell EvaluateLowerChoices(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
-            {
-                options.Clear();
-                int total = 0;
-                foreach (var n in location.GetRelativeDeltaNeighbors(-1))  //GetRelativeUpperNeighbors effizienter
-                {
-                    Grid.CellID cellLocation = location + n;
-                    if (cellLocation.Layer <= location.Layer)
-                    {
-                        int q = f(n, cellLocation);
-                        if (q > 0)
-                        {
-                            total += q;
-                            options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
-                        }
-                    }
-                }
-                if (total == 0)
-                    return Grid.RelativeCell.Invalid;
-                if (options.Count == 1)
-                    return options[0].Value;
-                int c = random.Next(total);
-                return options[c].Value;
-            }
-
-            public static Grid.RelativeCell EvaluateHorizontalChoices(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
-            {
-                options.Clear();
-                int total = 0;
-                foreach (var n in location.GetRelativeDeltaNeighbors(0))  //GetRelativeUpperNeighbors effizienter mit delta übergeben
-                {
-                    Grid.CellID cellLocation = location + n;
-
+                    
                     int q = f(n, cellLocation);
                     if (q > 0)
                     {
@@ -279,38 +305,84 @@ namespace TechniteLogic
                 );
             }
 
-            /// <summary>
-            /// Determines a cell of the upper neighbor
-            /// von uns
-            /// </summary>
-            /// <param name="location"></param>
-            /// <returns></returns>
-            public static Grid.RelativeCell GetUpperSplitTarget(Grid.CellID location)
-            {
-                return EvaluateUpperChoices(location, (relative, cell) =>
-                {
-                    if (Grid.World.GetCell(cell).content == Grid.Content.Clear || Grid.World.GetCell(cell).content == Grid.Content.Water)
-                    {
-                        if (Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite)
-                        {
-                            if (Technite.EnoughSupportHere(cell))
-                                return 1;
-                        }
-                    }
-                    return NotAChoice;
-                }
-                );
-            }
+            ///// <summary>
+            ///// Determines a cell of the upper neighbor
+            ///// von uns
+            ///// </summary>
+            ///// <param name="location"></param>
+            ///// <returns></returns>
+            //public static Grid.RelativeCell GetUpperSplitTarget(Grid.CellID location)
+            //{
+            //    return EvaluateDeltaChoices(location, (relative, cell) =>
+            //    {
+            //        if (Grid.World.GetCell(cell).content == Grid.Content.Clear || Grid.World.GetCell(cell).content == Grid.Content.Water)
+            //        {
+            //            if (Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite)
+            //            {
+            //                if (Technite.EnoughSupportHere(cell))
+            //                    return 1;
+            //            }
+            //        }
+            //        return NotAChoice;
+            //    }
+            //    , 1);
+            //}
+
+            ///// <summary>
+            ///// Determines a cell of a horizontal neighbor
+            ///// von uns
+            ///// </summary>
+            ///// <param name="location"></param>
+            ///// <returns></returns>
+            //public static Grid.RelativeCell GetHorizontalSplitTarget(Grid.CellID location)
+            //{
+            //    return EvaluateDeltaChoices(location, (relative, cell) =>
+            //    {
+            //        if (Grid.World.GetCell(cell).content == Grid.Content.Clear || Grid.World.GetCell(cell).content == Grid.Content.Water)
+            //        {
+            //            if (Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite)
+            //            {
+            //                if (Technite.EnoughSupportHere(cell))
+            //                    return 1;
+            //            }
+            //        }
+            //        return NotAChoice;
+            //    }
+            //    , 0);
+            //}
+
+            ///// <summary>
+            ///// Determines a cell of the lower neighbor
+            ///// von uns
+            ///// </summary>
+            ///// <param name="location"></param>
+            ///// <returns></returns>
+            //public static Grid.RelativeCell GetLowerSplitTarget(Grid.CellID location)
+            //{
+            //    return EvaluateDeltaChoices(location, (relative, cell) =>
+            //    {
+            //        if (Grid.World.GetCell(cell).content == Grid.Content.Clear || Grid.World.GetCell(cell).content == Grid.Content.Water)
+            //        {
+            //            if (Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite)
+            //            {
+            //                if (Technite.EnoughSupportHere(cell))
+            //                    return 1;
+            //            }
+            //        }
+            //        return NotAChoice;
+            //    }
+            //    , -1);
+            //}
 
             /// <summary>
-            /// Determines a cell of a horizontal neighbor
+            /// Determines a cell of the specified delta position
             /// von uns
             /// </summary>
             /// <param name="location"></param>
             /// <returns></returns>
-            public static Grid.RelativeCell GetHorizontalSplitTarget(Grid.CellID location)
+            public static Grid.RelativeCell GetDeltaSplitTarget(Grid.CellID location, positions delta)
             {
-                return EvaluateHorizontalChoices(location, (relative, cell) =>
+                return EvaluateDeltaChoices(location, (relative, cell) =>
                 {
                     if (Grid.World.GetCell(cell).content == Grid.Content.Clear || Grid.World.GetCell(cell).content == Grid.Content.Water)
                     {
@@ -322,31 +394,9 @@ namespace TechniteLogic
                     }
                     return NotAChoice;
                 }
-                );
+                , delta);
             }
 
-            /// <summary>
-            /// Determines a cell of the lower neighbor
-            /// von uns
-            /// </summary>
-            /// <param name="location"></param>
-            /// <returns></returns>
-            public static Grid.RelativeCell GetLowerSplitTarget(Grid.CellID location)
-            {
-                return EvaluateLowerChoices(location, (relative, cell) =>
-                {
-                    if (Grid.World.GetCell(cell).content == Grid.Content.Clear || Grid.World.GetCell(cell).content == Grid.Content.Water)
-                    {
-                        if (Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite)
-                        {
-                            if (Technite.EnoughSupportHere(cell))
-                                return 1;
-                        }
-                    }
-                    return NotAChoice;
-                }
-                );
-            }
 
 			/// <summary>
 			/// Determines a feasible neighborhood cell that can work as a replication destination.
@@ -406,6 +456,13 @@ namespace TechniteLogic
             return gamePhase;
         }
 
+        public enum positions
+        {
+            upper = 1,
+            lower = -1,
+            horizontal = 0,
+        }
+
 		/// <summary>
 		/// Central logic method. Invoked once per round to determine the next task for each technite.
 		/// </summary>
@@ -452,19 +509,21 @@ namespace TechniteLogic
                     case 1: // split
                         if (t.CanSplit)
                         {
-                            target = Helper.GetUpperSplitTarget(t.Location);
+                            target = Helper.GetDeltaSplitTarget(t.Location, positions.horizontal);
                             if (target != Grid.RelativeCell.Invalid)
                             {
                                 t.SetNextTask(Technite.Task.GrowTo, target);
                                 break;
                             }
-                            target = Helper.GetHorizontalSplitTarget(t.Location);
+
+                            target = Helper.GetDeltaSplitTarget(t.Location, positions.upper);
                             if (target != Grid.RelativeCell.Invalid)
                             {
                                 t.SetNextTask(Technite.Task.GrowTo, target);
                                 break;
                             }
-                            target = Helper.GetLowerSplitTarget(t.Location);
+                            
+                            target = Helper.GetDeltaSplitTarget(t.Location, positions.lower);
                             if (target != Grid.RelativeCell.Invalid)
                             {
                                 t.SetNextTask(Technite.Task.GrowTo, target);
