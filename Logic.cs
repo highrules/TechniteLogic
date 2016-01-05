@@ -101,7 +101,7 @@ namespace TechniteLogic
             {
                 options.Clear();
                 int total = 0;
-                foreach (var n in location.GetRelativeUpperNeighbors())  //GetRelativeUpperNeighbors effizienter mit delta übergabe
+                foreach (var n in location.GetRelativeDeltaNeighbors(1))  //GetRelativeUpperNeighbors effizienter mit delta übergabe
                 {
                     Grid.CellID cellLocation = location + n;
                     if (cellLocation.Layer >= location.Layer)
@@ -133,7 +133,7 @@ namespace TechniteLogic
             {
                 options.Clear();
                 int total = 0;
-                foreach (var n in location.GetRelativeLowerNeighbors())  //GetRelativeUpperNeighbors effizienter
+                foreach (var n in location.GetRelativeDeltaNeighbors(-1))  //GetRelativeUpperNeighbors effizienter
                 {
                     Grid.CellID cellLocation = location + n;
                     if (cellLocation.Layer <= location.Layer)
@@ -158,7 +158,7 @@ namespace TechniteLogic
             {
                 options.Clear();
                 int total = 0;
-                foreach (var n in location.GetRelativeHorizontalNeighbors())  //GetRelativeUpperNeighbors effizienter mit delta übergeben
+                foreach (var n in location.GetRelativeDeltaNeighbors(0))  //GetRelativeUpperNeighbors effizienter mit delta übergeben
                 {
                     Grid.CellID cellLocation = location + n;
 

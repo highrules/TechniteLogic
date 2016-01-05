@@ -545,55 +545,89 @@ namespace TechniteLogic
             /// <summary>
             /// Returns all upper neighbors of the actual position
             /// von uns
+            /// später zusammengefasst
             /// </summary>
             /// <returns></returns>
-            public IEnumerable<RelativeCell> GetRelativeUpperNeighbors()
-            {
-                int upper = Layer + 1 < CellStack.LayersPerStack ? 1 : 0;
-                uint numNeighbors = (uint)Grid.Graph.Nodes[StackID].Neighbors.Length;
-                for (uint i = 0; i < numNeighbors; i++)
-                {
-                    yield return new RelativeCell(i, upper);
-                }
-                if (upper != 0)
-                    yield return new RelativeCell(upper);
-            }
+            //public IEnumerable<RelativeCell> GetRelativeUpperNeighbors()
+            //{
+            //    int upper = Layer + 1 < CellStack.LayersPerStack ? 1 : 0;
+            //    uint numNeighbors = (uint)Grid.Graph.Nodes[StackID].Neighbors.Length;
+            //    for (uint i = 0; i < numNeighbors; i++)
+            //    {
+            //        yield return new RelativeCell(i, upper);
+            //    }
+            //    if (upper != 0)
+            //        yield return new RelativeCell(upper);
+            //}
 
             /// <summary>
             /// Returns all lower neighbors of the actual position
             /// if the actual cell is on the bottom of the grid it returns the actual layer
             /// von uns
+            /// später zusammengefasst
             /// </summary>
             /// <returns></returns>
-            public IEnumerable<RelativeCell> GetRelativeLowerNeighbors()
-            {
-                int lower = Layer > 0 ? -1 : 0;
-                uint numNeighbors = (uint)Grid.Graph.Nodes[StackID].Neighbors.Length;
-                for (uint i = 0; i < numNeighbors; i++)
-                {
-                    yield return new RelativeCell(i, lower);
-                }
-                if (lower != 0)
-                    yield return new RelativeCell(lower);
-            }
+            //public IEnumerable<RelativeCell> GetRelativeLowerNeighbors()
+            //{
+            //    int lower = Layer > 0 ? -1 : 0;
+            //    uint numNeighbors = (uint)Grid.Graph.Nodes[StackID].Neighbors.Length;
+            //    for (uint i = 0; i < numNeighbors; i++)
+            //    {
+            //        yield return new RelativeCell(i, lower);
+            //    }
+            //    if (lower != 0)
+            //        yield return new RelativeCell(lower);
+            //}
 
             /// <summary>
             /// Returns all neighbors of the actual layer
             /// von uns
+            /// später zusammengefasst
             /// </summary>
             /// <returns></returns>
-            public IEnumerable<RelativeCell> GetRelativeHorizontalNeighbors()
+            //public IEnumerable<RelativeCell> GetRelativeHorizontalNeighbors()
+            //{
+            //    int same = 0;
+            //    uint numNeighbors = (uint)Grid.Graph.Nodes[StackID].Neighbors.Length;
+            //    for (uint i = 0; i < numNeighbors; i++)
+            //    {
+            //        yield return new RelativeCell(i, same);
+            //    }
+            //}
+
+            /// <summary>
+            /// Returns all neighbors of the delta layer
+            /// von uns
+            /// </summary>
+            /// <returns></returns>
+            public IEnumerable<RelativeCell> GetRelativeDeltaNeighbors(int delta)
             {
-                int same = 0;
+                switch(delta)
+                {
+                    case -1:
+                        if (Layer <= 0)
+                            delta = 0;
+                        break;
+                    case 0: break;
+                    case 1:
+                        if (Layer >= CellStack.LayersPerStack)
+                            delta = 0;
+                        break;
+                    default: Out.Log(Significance.Low, "Strange delta in Function GetRelativeDeltaNeighbors(int delta): " + delta);
+                        break;
+                }
+
                 uint numNeighbors = (uint)Grid.Graph.Nodes[StackID].Neighbors.Length;
                 for (uint i = 0; i < numNeighbors; i++)
                 {
-                    yield return new RelativeCell(i, same);
+                    yield return new RelativeCell(i, delta);
                 }
+                if (delta != 0)
+                    yield return new RelativeCell(delta);
             }
-		}
+        }
 
-		internal static void BeginSession(float heightPerLayer, int numLayersPerStack)
+        internal static void BeginSession(float heightPerLayer, int numLayersPerStack)
 		{
 			CellStack.Setup(heightPerLayer, numLayersPerStack);
 		}
