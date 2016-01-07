@@ -627,6 +627,8 @@ namespace TechniteLogic
             }
         }
 
+
+
         internal static void BeginSession(float heightPerLayer, int numLayersPerStack)
 		{
 			CellStack.Setup(heightPerLayer, numLayersPerStack);

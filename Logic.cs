@@ -32,7 +32,7 @@ namespace TechniteLogic
 				foreach (var n in location.GetRelativeNeighbors())
 				{
 					Grid.CellID cellLocation = location + n;
-					int q = f(n, cellLocation);
+					int q = f(n, cellLocation);  
 					if (q > 0)
 					{
 						total += q;
@@ -55,6 +55,98 @@ namespace TechniteLogic
 			}
 
             //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            /// <summary>
+			/// Searches for the neighbouring technite with the least amount of matter
+            /// von uns
+			/// </summary>
+			/// <param name="location">Location to evaluate the neighborhood of</param>
+			/// <param name="f">Evaluation function. Must return 0/NotAChoice if not applicable, and >1 otherwise. Higher values indicate higher probability</param>
+			/// <returns></returns>
+			public static Grid.RelativeCell EvaluateMinResourceTransferChoices(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
+            {
+                options.Clear();
+                foreach (var n in location.GetRelativeNeighbors())
+                {
+                    Grid.CellID cellLocation = location + n;
+                    if (Grid.World.GetCell(cellLocation).content == Grid.Content.Technite)
+                    {
+                        int q = f(n, cellLocation);  // q = current matter of technite n
+                        options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
+                    }
+                    
+                }
+                if (options.Count == 0)
+                    return Grid.RelativeCell.Invalid;
+                if (options.Count == 1)
+                    return options[0].Value;
+                //int c = random.Next(total);
+                int minResource = byte.MaxValue;
+                Grid.RelativeCell minOption = Grid.RelativeCell.Invalid;
+                foreach (var o in options)
+                {
+                    if (minResource >= o.Key)   // make a new options field with all minResource and choose a random option
+                    {
+                        minResource = o.Key;
+                        minOption = o.Value;
+                    }
+                }
+                return minOption;
+                //foreach (var o in options)
+                //{
+                //    if (c <= o.Key)
+                //        return o.Value;
+                //    c -= o.Key;
+                //}
+                //Out.Log(Significance.ProgramFatal, "Logic error");
+                //return Grid.RelativeCell.Invalid;
+            }
+
+            /// <summary>
+			/// Searches for the neighbouring technite with the least amount of energy
+            /// von uns
+			/// </summary>
+			/// <param name="location">Location to evaluate the neighborhood of</param>
+			/// <param name="f">Evaluation function. Must return 0/NotAChoice if not applicable, and >1 otherwise. Higher values indicate higher probability</param>
+			/// <returns></returns>
+			//public static Grid.RelativeCell EvaluateMinEnergyTransferChoices(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
+            //{
+            //    options.Clear();
+            //    foreach (var n in location.GetRelativeNeighbors())
+            //    {
+            //        Grid.CellID cellLocation = location + n;
+            //        if (Grid.World.GetCell(cellLocation).content == Grid.Content.Technite)
+            //        {
+            //            int q = f(n, cellLocation);  // q = current Energy of technite n
+            //            options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
+            //        }
+            //
+            //    }
+            //    if (options.Count == 0)
+            //        return Grid.RelativeCell.Invalid;
+            //    if (options.Count == 1)
+            //        return options[0].Value;
+            //    //int c = random.Next(total);
+            //    int minResource = byte.MaxValue;
+            //    Grid.RelativeCell minOption = Grid.RelativeCell.Invalid;
+            //    foreach (var o in options)
+            //    {
+            //        if (minResource >= o.Key)   // make a new options field with all minResource and choose a random option
+            //        {
+            //            minResource = o.Key;
+            //            minOption = o.Value;
+            //        }
+            //    }
+            //    return minOption;
+                //foreach (var o in options)
+                //{
+                //    if (c <= o.Key)
+                //        return o.Value;
+                //    c -= o.Key;
+                //}
+                //Out.Log(Significance.ProgramFatal, "Logic error");
+                //return Grid.RelativeCell.Invalid;
+            //}
 
             /// <summary>
             /// Evaluated all targets matter values and return max matter target.
@@ -177,7 +269,13 @@ namespace TechniteLogic
             //    int c = random.Next(total);
             //    return options[c].Value;
             //}
-
+            /// <summary>
+            /// Returns a random cell in the given delta
+            /// von uns
+            /// </summary>
+            /// <param name="location"></param>
+            /// <param name="f">Evaluation function. Must return 0/NotAChoice if not applicable, and >1 otherwise. Higher values indicate higher probability</param>
+            /// <returns>Chocen relative cell, or Grid.RelativeCell.Invalid if none was found.</returns>
             public static Grid.RelativeCell EvaluateDeltaChoices(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f, positions delta)
             {
                 options.Clear();
@@ -192,6 +290,7 @@ namespace TechniteLogic
                     if (q > 0)
                     {
                         total += q;
+                        
                         options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
                     }
 
@@ -202,17 +301,79 @@ namespace TechniteLogic
                     return options[0].Value;
                 int c = random.Next(total);
                 return options[c].Value;
+
+                /// For Technites that split to cells with matter
+                //int maxYield = 0;
+                //Grid.RelativeCell maxOption = Grid.RelativeCell.Invalid;
+                //foreach (var o in options)
+                //{
+                //    if (maxYield <= o.Key)
+                //    {
+                //        maxYield = o.Key;
+                //        maxOption = o.Value;
+                //    }
+                //}
+                //return maxOption;
+            }
+            /// <summary>
+            /// Determines a feasible, possibly ideal neighbor technite target, based on a given evaluation function
+            /// von uns
+            /// </summary>
+            /// <param name="location"></param>
+            /// <param name="f">Evaluation function. Must return 0/NotAChoice if not applicable, and >1 otherwise. Higher values indicate higher probability</param>
+            /// <returns>Chocen relative cell, or Grid.RelativeCell.Invalid if none was found.</returns>
+            public static Grid.RelativeCell EvaluateMinMatterNeighborTechnites(Grid.CellID location, Func<Grid.RelativeCell, Technite, int> f)
+            {
+                return EvaluateMinResourceTransferChoices(location, (relative, cell) =>
+                {
+                    Grid.Content content = Grid.World.GetCell(cell).content;
+                    if (content != Grid.Content.Technite)
+                        return NotAChoice;
+                    Technite other = Technite.Find(cell);
+                    if (other == null)
+                    {
+                        Out.Log(Significance.Unusual, "Located neighboring technite in " + cell + ", but cannot find reference to class instance");
+                        return NotAChoice;
+                    }
+                    return f(relative, other);
+                }
+                );
+            }
+
+            /// <summary>
+            /// Determines a feasible, possibly ideal neighbor technite target, based on a given evaluation function
+            /// von uns
+            /// </summary>
+            /// <param name="location"></param>
+            /// <param name="f">Evaluation function. Must return 0/NotAChoice if not applicable, and >1 otherwise. Higher values indicate higher probability</param>
+            /// <returns>Chocen relative cell, or Grid.RelativeCell.Invalid if none was found.</returns>
+            public static Grid.RelativeCell EvaluateMinEnergyNeighborTechnites(Grid.CellID location, Func<Grid.RelativeCell, Technite, int> f)
+            {
+                return EvaluateMinResourceTransferChoices(location, (relative, cell) =>
+                {
+                    Grid.Content content = Grid.World.GetCell(cell).content;
+                    if (content != Grid.Content.Technite)
+                        return NotAChoice;
+                    Technite other = Technite.Find(cell);
+                    if (other == null)
+                    {
+                        Out.Log(Significance.Unusual, "Located neighboring technite in " + cell + ", but cannot find reference to class instance");
+                        return NotAChoice;
+                    }
+                    return f(relative, other);
+                }
+                );
             }
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-			/// <summary>
-			/// Determines a feasible, possibly ideal neighbor technite target, based on a given evaluation function
-			/// </summary>
-			/// <param name="location"></param>
-			/// <param name="f">Evaluation function. Must return 0/NotAChoice if not applicable, and >1 otherwise. Higher values indicate higher probability</param>
-			/// <returns>Chocen relative cell, or Grid.RelativeCell.Invalid if none was found.</returns>
-			public static Grid.RelativeCell EvaluateNeighborTechnites(Grid.CellID location, Func<Grid.RelativeCell, Technite, int> f)
+            /// <summary>
+            /// Determines a feasible, possibly ideal neighbor technite target, based on a given evaluation function
+            /// </summary>
+            /// <param name="location"></param>
+            /// <param name="f">Evaluation function. Must return 0/NotAChoice if not applicable, and >1 otherwise. Higher values indicate higher probability</param>
+            /// <returns>Chocen relative cell, or Grid.RelativeCell.Invalid if none was found.</returns>
+            public static Grid.RelativeCell EvaluateNeighborTechnites(Grid.CellID location, Func<Grid.RelativeCell, Technite, int> f)
 			{
 				return EvaluateChoices(location, (relative, cell) =>
 				{
@@ -300,9 +461,59 @@ namespace TechniteLogic
                     // verhindert das techniten über andere techniten bauen und damit lit = false werden könnte
                     if (Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite)
                         return yield;
+                    //int energyYield = Technite.EnergyYieldAtLayer[location.Layer];
                     return NotAChoice;
                 }
                 );
+            }
+            /// <summary>
+            /// Determines a cell of the upper neighbor
+            /// von uns
+            /// </summary>
+            /// <param name="location"></param>
+            /// <returns></returns>
+            public static Grid.RelativeCell GetMatterNeighbourTechnite(Grid.CellID location)
+            {
+                return EvaluateMinMatterNeighborTechnites(location, (relative, technite) =>
+                {
+                    //int rs = 0;
+                    //if (technite.Status.Lit)
+                    //    rs++;
+                    //rs += relative.HeightDelta;
+                    //return rs;
+                    //Grid.Content content = Grid.World.GetCell(technite.Location).content;
+                    int curMatter = technite.CurrentResources.Matter;
+                    // verhindert das techniten über andere techniten bauen und damit lit = false werden könnte
+                    //if (Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite)
+                        return curMatter;
+                    //int energyYield = Technite.EnergyYieldAtLayer[location.Layer];
+                    //return NotAChoice;
+                });
+            }
+
+            /// <summary>
+            /// Determines a cell of the upper neighbor
+            /// von uns
+            /// </summary>
+            /// <param name="location"></param>
+            /// <returns></returns>
+            public static Grid.RelativeCell GetEnergyNeighbourTechnite(Grid.CellID location)
+            {
+                return EvaluateMinEnergyNeighborTechnites(location, (relative, technite) =>
+                {
+                    //int rs = 0;
+                    //if (technite.Status.Lit)
+                    //    rs++;
+                    //rs += relative.HeightDelta;
+                    //return rs;
+                    //Grid.Content content = Grid.World.GetCell(technite.Location).content;
+                    //int curMatter = technite.CurrentResources.Matter;
+                    // verhindert das techniten über andere techniten bauen und damit lit = false werden könnte
+                    //if (Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite)
+                    int curEnergy = technite.CurrentResources.Energy;
+                    return curEnergy;
+                    //return NotAChoice;
+                });
             }
 
             ///// <summary>
@@ -437,6 +648,10 @@ namespace TechniteLogic
             {
                 gamePhase = 1;
             }
+            else if(t.CurrentResources.Matter == 255)
+            {
+                gamePhase = 2;
+            }
             else if (t.CanGnawAt)
             {
                 gamePhase = 0;
@@ -482,6 +697,10 @@ namespace TechniteLogic
                     case 0: // nagen
                         if (t.CanGnawAt)
                         {
+                            if (t.CurrentResources.Energy <= 5) //splitmatter available, wait for energy
+                            {
+                                goto case 99;
+                            }
                             target = Helper.GetMaxMatterGnawChoice(t.Location);
 
                             if (target != Grid.RelativeCell.Invalid)
@@ -531,8 +750,12 @@ namespace TechniteLogic
                             }
                         }
                         goto case 2;
-                    case 2: // transfer half matter to top technites toDo: funktion evaluate best transfer choice (nachbar hat max matter oder ttl feld klein)
-                        target = Helper.GetLitOrUpperTechnite(t.Location);
+                    case 2: // transfer half matter to top technites toDo: function evaluate best transfer choice (neighbour has max matter or ttl is low)
+                        if(t.CurrentResources.Energy == 0 && t.CurrentResources.Matter == 0 && t.Status.Lit == false)
+                        {
+                            goto case 99;
+                        }
+                        target = Helper.GetMatterNeighbourTechnite(t.Location); // maybe filter invalid targets 
                         byte halfRes = (byte)(t.CurrentResources.Matter / 2);
 
                         if (target != Grid.RelativeCell.Invalid && halfRes > 0)
@@ -542,7 +765,7 @@ namespace TechniteLogic
                         }
                         goto case 3;
                     case 3: // transfer energy half
-                        target = Helper.GetUnlitOrLowerTechnite(t.Location);
+                        target = Helper.GetEnergyNeighbourTechnite(t.Location);
                         halfRes = (byte)(t.CurrentResources.Energy / 2);
                         if (target != Grid.RelativeCell.Invalid && halfRes > 0)
                         {
@@ -569,14 +792,16 @@ namespace TechniteLogic
                             t.SetNextTask(Technite.Task.TransferEnergyTo, target, t.CurrentResources.Energy);
                             break;
                         }
+                        goto case 99;
+                    case 99:
                         t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
-                        break;
+                        break;  
                     //case 123: // sudden death mode
                     //    target = Helper.GetFoodChoice(t.Location);
                     //    if (target != Grid.RelativeCell.Invalid)
                     //        t.SetNextTask(Technite.Task.ConsumeSurroundingCell, target);
                     //    else
-                    //        t.SetNextTask(Technite.Task.None, target);
+                    //        goto case 99;
                     //    break;
                 };
             }
