@@ -596,6 +596,7 @@ namespace TechniteLogic
                 return EvaluateDeltaChoices(location, (relative, cell) =>
                 {
                     if (Grid.World.GetCell(cell).content == Grid.Content.Clear || Grid.World.GetCell(cell).content == Grid.Content.Water)
+                        // check for different faction e.g. enemy technites
                     {
                         if (Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite)
                         {
