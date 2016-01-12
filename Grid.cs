@@ -541,6 +541,41 @@ namespace TechniteLogic
 						yield return new RelativeCell(delta);
 				}
 			}
+
+            /*-----------------------------------------------------------------------------*/
+
+            /// <summary>
+            /// Returns all neighbors of the delta layer
+            /// von uns
+            /// </summary>
+            /// <returns></returns>
+            public IEnumerable<RelativeCell> GetRelativeDeltaNeighbors(int delta)
+            {
+                switch (delta)
+                {
+                    case -1:
+                        if (Layer <= 0)
+                            delta = 0;
+                        break;
+                    case 0: break;
+                    case 1:
+                        if (Layer >= CellStack.LayersPerStack)
+                            delta = 0;
+                        break;
+                    default: Out.Log(Significance.Low, "Strange delta in Function GetRelativeDeltaNeighbors(int delta): " + delta);
+                        break;
+                }
+
+                uint numNeighbors = (uint)Grid.Graph.Nodes[StackID].Neighbors.Length;
+                for (uint i = 0; i < numNeighbors; i++)
+                {
+                    yield return new RelativeCell(i, delta);
+                }
+                if (delta != 0)
+                    yield return new RelativeCell(delta);
+            }
+
+            /*-----------------------------------------------------------------------------*/
 		}
 
 		internal static void BeginSession(float heightPerLayer, int numLayersPerStack)

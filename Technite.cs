@@ -25,7 +25,8 @@ namespace TechniteLogic
 							SplitMatterCost = 5,
 							EnergyPackageSize = 5,
 							MatterPackageSize = 5;
-
+        public bool root            = false,
+                    selfTransform   = false;
 
 		/// <summary>
 		/// Amount of matter than can be extracted from the respective grid content type.
