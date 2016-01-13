@@ -16,17 +16,22 @@ namespace TechniteLogic
 	/// </summary>
 	public class Technite
 	{
-		/// <summary>
-		/// Currently constant cost values. Will be moved into the protocol, and specified by the server soon.
-		/// </summary>
-		public static byte	ConsumeEnergyCost = 2,
-							GnatAtEnergyCost = 1,
-							SplitEnergyCost = 5,
-							SplitMatterCost = 5,
-							EnergyPackageSize = 5,
-							MatterPackageSize = 5;
-        public bool root            = false,
-                    selfTransform   = false;
+        /// <summary>
+        /// Currently constant cost values. Will be moved into the protocol, and specified by the server soon.
+        /// </summary>
+        public static byte ConsumeEnergyCost = 2,
+                            GnatAtEnergyCost = 1,
+                            SplitEnergyCost = 5,
+                            SplitMatterCost = 5,
+                            EnergyPackageSize = 5,
+                            MatterPackageSize = 5;
+        public byte         mystate = 50;
+        public bool root = false,
+                    selfTransform = false,
+                    grow_left = false,
+                    grow_right = true,
+                    grow_up = true,
+                    done = false;
 
 		/// <summary>
 		/// Amount of matter than can be extracted from the respective grid content type.

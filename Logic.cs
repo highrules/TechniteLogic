@@ -213,13 +213,64 @@ namespace TechniteLogic
                 }
                 , delta);
             }
-
-
+            /// <summary>
+            /// Determines a gnaw source in the neighborhood of the specified location
+            /// von uns
+            /// </summary>
+            /// <param name="location"></param>
+            /// <returns></returns>
+            public static Grid.RelativeCell GetMaxMatterGnawChoice(Grid.CellID location)
+            {
+                return EvaluateMaxMatterGnawChoices(location, (relative, cell) =>
+                {
+                    Grid.Content content = Grid.World.GetCell(cell).content;
+                    int yield = Technite.MatterYield[(int)content]; //zero is zero, no exceptions
+                    // verhindert das techniten über andere techniten bauen und damit lit = false werden könnte
+                    if (Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite)
+                        return yield;
+                    //int energyYield = Technite.EnergyYieldAtLayer[location.Layer];
+                    return NotAChoice;
+                }
+                );
+            } /// <summary>
+              /// Evaluated all targets matter values and return max matter target.
+              /// von uns
+              /// </summary>
+              /// <param name="location"></param>
+              /// <returns></returns>
+            public static Grid.RelativeCell EvaluateMaxMatterGnawChoices(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
+            {
+                options.Clear();
+                foreach (var n in location.GetRelativeNeighbors())
+                {
+                    Grid.CellID cellLocation = location + n;
+                    int q = f(n, cellLocation);
+                    if (q > 0)
+                    {
+                        options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
+                    }
+                }
+                if (options.Count == 0)
+                    return Grid.RelativeCell.Invalid;
+                if (options.Count == 1)
+                    return options[0].Value;
+                int maxYield = 0;
+                Grid.RelativeCell maxOption = Grid.RelativeCell.Invalid;
+                foreach (var o in options)
+                {
+                    if (maxYield <= o.Key)
+                    {
+                        maxYield = o.Key;
+                        maxOption = o.Value;
+                    }
+                }
+                return maxOption;
+            }
 
             /*--------------------------------------------------------------------------------*/
-		}
+        }
 
-		private static Random random = new Random();
+        private static Random random = new Random();
 		/// <summary>
 		/// Central logic method. Invoked once per round to determine the next task for each technite.
 		/// </summary>
@@ -230,22 +281,45 @@ namespace TechniteLogic
         {
             Out.Log(Significance.Common, "ProcessTechnites()");
 
-            byte state = 0;
-
             Grid.RelativeCell target;
 
             foreach (Technite t in Technite.All)
             {
-                if(firstTurn)
+                //Grid.RelativeCell n = new Grid.RelativeCell(0, 1);
+                Grid.CellID location = t.Location;
+                //Technite t_new = Technite.Find(location);
+                if(Technite.Count != 1 && (Grid.World.GetCell(location.BottomNeighbor).content != Grid.Content.Technite))
                 {
-                    t.root = true;
-                    firstTurn = false;
+                    t.done = true;
                 }
+                if (t.done)
+                {
+                    t.mystate = 255;
+                }
+                else
+                {
+                    if(Technite.Count == 1)
+                    t.mystate = 52;
+                    else
+                    {
+                        Technite t_bottom = Technite.Find(location.BottomNeighbor);
 
-                if(t.selfTransform)
-                    state = 100;
+                        if (t_bottom.grow_left)
+                            t.mystate = 51;
+                        if (t_bottom.grow_right)
+                            t.mystate = 50;
+                    }
+                }
+                //if(firstTurn)
+                //{
+                //    t.root = true;
+                //    firstTurn = false;
+                //}
 
-                switch (state)
+                //if(t.selfTransform)
+                //    state = 100;
+
+                switch (t.mystate)
                 {
                     case 0:
                         if (t.CanConsume)
@@ -280,11 +354,117 @@ namespace TechniteLogic
                         }
                         break;
 
+                    case 50:                //baue baum
+                        if (t.CanSplit)
+                        {
+                            if (t.grow_left)
+                            {
+                                target = new Grid.RelativeCell(0, 0);
+                                t.SetNextTask(Technite.Task.GrowTo, target);
+                                t.mystate = 52;
+                                //t.grow_left = false;
+                                break;
+                            }
+                        }
+                        else if (t.CanGnawAt && t.CurrentResources.Matter <= 5)
+                        {
+                            target = Helper.GetMaxMatterGnawChoice(t.Location);          // maxGnawChoice
+                            if (target != Grid.RelativeCell.Invalid)
+                            {
+                                t.SetNextTask(Technite.Task.GnawAtSurroundingCell, target);
+                                break;
+                            }
+                        }
+                        else if (t.CurrentResources.Energy > 10)
+                        {
+                            target = Helper.GetUnlitOrLowerTechnite(t.Location);
+                            t.SetNextTask(Technite.Task.TransferEnergyTo, target, 5);
+                            break;
+                        }
+                        t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
+                        break;
+
+                    case 51:
+                        if(t.CanSplit)
+                        {
+                            if (t.grow_right)
+                            {
+                                target = new Grid.RelativeCell(3, 0);
+                                t.SetNextTask(Technite.Task.GrowTo, target);
+                                t.mystate = 52;
+                                //t.grow_right = false;
+                                break;
+                            }
+                        }
+                        else if (t.CanGnawAt && t.CurrentResources.Matter <= 5)
+                        {
+                            target = Helper.GetMaxMatterGnawChoice(t.Location);          // maxGnawChoice
+                            if (target != Grid.RelativeCell.Invalid)
+                            {
+                                t.SetNextTask(Technite.Task.GnawAtSurroundingCell, target);
+                                break;
+                            }
+                        }
+                        else if(t.CurrentResources.Energy > 10)
+                        {
+                            target = Helper.GetUnlitOrLowerTechnite(t.Location);
+                            t.SetNextTask(Technite.Task.TransferEnergyTo, target, 5);
+                            break;
+                        }
+                        t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
+                        break;
+
+                    case 52:
+                        if (t.CanSplit)
+                        {
+                            if (t.grow_up)
+                            {
+                                target = new Grid.RelativeCell(15, 1);
+                                t.SetNextTask(Technite.Task.GrowTo, target);
+                                t.done = true;
+                                t.grow_up = false;
+                                break;
+                            }
+                        }
+                        else if(t.CanGnawAt && t.CurrentResources.Matter <= 5)
+                        {
+                            target = Helper.GetMaxMatterGnawChoice(t.Location);          // maxGnawChoice
+                            if(target != Grid.RelativeCell.Invalid)
+                            {
+                                t.SetNextTask(Technite.Task.GnawAtSurroundingCell, target);
+                                break;
+                            }
+                        }
+                        else if (t.CurrentResources.Energy > 10)
+                        {
+                            target = Helper.GetUnlitOrLowerTechnite(t.Location);
+                            t.SetNextTask(Technite.Task.TransferEnergyTo, target, 5);
+                            break;
+                        }
+                        t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
+                        break;
+
                     case 100: // self transform to type
                         Grid.Content content = Grid.World.GetCell(t.Location.BottomNeighbor).content;
                         byte bumms = 1;
                         t.SetNextTask(Technite.Task.SelfTransformToType, Grid.RelativeCell.Self, bumms);
                         Console.Out.WriteLine("bumms = " + Technite.MatterYield[bumms]);
+                        break;
+                    case 255:           //gnaw matter and sent it up
+                        if(t.CurrentResources.Matter >= 5)
+                        {
+                            target = Helper.GetLitOrUpperTechnite(t.Location);
+                            t.SetNextTask(Technite.Task.TransferMatterTo, target, t.CurrentResources.Matter);
+                            break;
+                        }
+                        target = Helper.GetMaxMatterGnawChoice(t.Location);
+                        if (target != Grid.RelativeCell.Invalid)
+                        {
+                            t.SetNextTask(Technite.Task.GnawAtSurroundingCell, target);
+                            break;
+                        }
+                        target = Helper.GetUnlitOrLowerTechnite(t.Location);
+                        t.SetNextTask(Technite.Task.TransferEnergyTo, target, t.CurrentResources.Energy);
                         break;
                 }
             }
