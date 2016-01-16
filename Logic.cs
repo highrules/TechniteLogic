@@ -300,14 +300,29 @@ namespace TechniteLogic
                 {
                     if(Technite.Count == 1)
                     t.mystate = 52;
+                    else if(t.mystate == 52)
+                    {
+
+                    }
                     else
                     {
                         Technite t_bottom = Technite.Find(location.BottomNeighbor);
-
                         if (t_bottom.grow_left)
+                        {
+                            t.grow_right = true;
+                            t.grow_left = false;
                             t.mystate = 51;
-                        if (t_bottom.grow_right)
+
+                        }
+                        else if (t_bottom.grow_right)
+                        {
+
+                            t.grow_left = true;
+                            t.grow_right = false;
                             t.mystate = 50;
+
+                        }
+                            
                     }
                 }
                 //if(firstTurn)
@@ -426,7 +441,7 @@ namespace TechniteLogic
                                 break;
                             }
                         }
-                        else if(t.CanGnawAt && t.CurrentResources.Matter <= 5)
+                        else if(t.CanGnawAt && t.CurrentResources.Matter <= 5)          //!!!!CanGnawAt überprüft, ob der technite die nötige energie zum nagen hat, nicht ob es ein nageziel gibt!!!!
                         {
                             target = Helper.GetMaxMatterGnawChoice(t.Location);          // maxGnawChoice
                             if(target != Grid.RelativeCell.Invalid)
@@ -464,7 +479,9 @@ namespace TechniteLogic
                             break;
                         }
                         target = Helper.GetUnlitOrLowerTechnite(t.Location);
+                        if(t.CurrentResources.Energy > 0)
                         t.SetNextTask(Technite.Task.TransferEnergyTo, target, t.CurrentResources.Energy);
+                        t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
                         break;
                 }
             }
