@@ -276,6 +276,7 @@ namespace TechniteLogic
 		/// </summary>
 
         static bool firstTurn = true;
+        static byte pos = 0;
 
         public static void ProcessTechnites()
         {
@@ -300,30 +301,29 @@ namespace TechniteLogic
                 {
                     if(Technite.Count == 1)
                     t.mystate = 52;
-                    else if(t.mystate == 52)
-                    {
+                    //else if(t.mystate == 52)
+                    //{
 
-                    }
-                    else
-                    {
-                        Technite t_bottom = Technite.Find(location.BottomNeighbor);
-                        if (t_bottom.grow_left)
-                        {
-                            t.grow_right = true;
-                            t.grow_left = false;
-                            t.mystate = 51;
+                    //}
+                    //else
+                    //{
+                        //Technite t_bottom = Technite.Find(location.BottomNeighbor);
+                        //if (t_bottom.grow_left)
+                        //{
+                        //    t.grow_right = true;
+                        //    t.grow_left = false;
+                        //    t.mystate = 51;
 
-                        }
-                        else if (t_bottom.grow_right)
-                        {
+                        //}
+                        //else if (t_bottom.grow_right)
+                        //{
 
-                            t.grow_left = true;
-                            t.grow_right = false;
-                            t.mystate = 50;
+                        //    t.grow_left = true;
+                        //    t.grow_right = false;
+                        //    t.mystate = 50;
 
-                        }
-                            
-                    }
+                        //} 
+                    //}
                 }
                 //if(firstTurn)
                 //{
@@ -369,49 +369,55 @@ namespace TechniteLogic
                         }
                         break;
 
-                    case 50:                //baue baum
-                        if (t.CanSplit)
-                        {
-                            if (t.grow_left)
-                            {
-                                target = new Grid.RelativeCell(0, 0);
-                                t.SetNextTask(Technite.Task.GrowTo, target);
-                                t.mystate = 52;
-                                //t.grow_left = false;
-                                break;
-                            }
-                        }
-                        else if (t.CanGnawAt && t.CurrentResources.Matter <= 5)
-                        {
-                            target = Helper.GetMaxMatterGnawChoice(t.Location);          // maxGnawChoice
-                            if (target != Grid.RelativeCell.Invalid)
-                            {
-                                t.SetNextTask(Technite.Task.GnawAtSurroundingCell, target);
-                                break;
-                            }
-                        }
-                        else if (t.CurrentResources.Energy > 10)
-                        {
-                            target = Helper.GetUnlitOrLowerTechnite(t.Location);
-                            t.SetNextTask(Technite.Task.TransferEnergyTo, target, 5);
-                            break;
-                        }
-                        t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
-                        break;
+                    //case 50:                //baue baum
+                    //    if (t.CanSplit)
+                    //    {
+                    //        if (t.grow_left)
+                    //        {
+                    //            target = new Grid.RelativeCell(0, 0);
+                    //            t.SetNextTask(Technite.Task.GrowTo, target);
+                    //            t.mystate = 52;
+                    //            //t.grow_left = false;
+                    //            break;
+                    //        }
+                    //    }
+                    //    else if (t.CanGnawAt && t.CurrentResources.Matter <= 5)
+                    //    {
+                    //        target = Helper.GetMaxMatterGnawChoice(t.Location);          // maxGnawChoice
+                    //        if (target != Grid.RelativeCell.Invalid)
+                    //        {
+                    //            t.SetNextTask(Technite.Task.GnawAtSurroundingCell, target);
+                    //            break;
+                    //        }
+                    //    }
+                    //    else if (t.CurrentResources.Energy > 10)
+                    //    {
+                    //        target = Helper.GetUnlitOrLowerTechnite(t.Location);
+                    //        t.SetNextTask(Technite.Task.TransferEnergyTo, target, 5);
+                    //        break;
+                    //    }
+                    //    t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
+                    //    break;
 
                     case 51:
                         if(t.CanSplit)
                         {
-                            if (t.grow_right)
+                            if (t.grow_side)
                             {
-                                target = new Grid.RelativeCell(3, 0);
-                                t.SetNextTask(Technite.Task.GrowTo, target);
-                                t.mystate = 52;
-                                //t.grow_right = false;
-                                break;
+                                target = new Grid.RelativeCell(pos, 0);
+                                if (target != Grid.RelativeCell.Invalid)
+                                {
+                                    t.SetNextTask(Technite.Task.GrowTo, target);
+                                    pos++;
+                                    if (pos == 6)
+                                        pos = 0;
+                                    t.mystate = 52;
+                                    //t.grow_right = false;
+                                    break;
+                                }
                             }
                         }
-                        else if (t.CanGnawAt && t.CurrentResources.Matter <= 5)
+                        if (t.CanGnawAt && t.CurrentResources.Matter <= 5)
                         {
                             target = Helper.GetMaxMatterGnawChoice(t.Location);          // maxGnawChoice
                             if (target != Grid.RelativeCell.Invalid)
@@ -420,7 +426,7 @@ namespace TechniteLogic
                                 break;
                             }
                         }
-                        else if(t.CurrentResources.Energy > 10)
+                        if(t.CurrentResources.Energy > 10)
                         {
                             target = Helper.GetUnlitOrLowerTechnite(t.Location);
                             t.SetNextTask(Technite.Task.TransferEnergyTo, target, 5);
@@ -435,7 +441,8 @@ namespace TechniteLogic
                             if (t.grow_up)
                             {
                                 target = new Grid.RelativeCell(15, 1);
-                                if(target != Grid.RelativeCell.Invalid)
+                                Grid.CellID absoluteTarget = t.Location + target;
+                                if(target != Grid.RelativeCell.Invalid && absoluteTarget.IsValid)
                                 {
                                     t.SetNextTask(Technite.Task.GrowTo, target);
                                     t.done = true;
@@ -475,8 +482,11 @@ namespace TechniteLogic
                         if(t.CurrentResources.Matter >= 5)
                         {
                             target = Helper.GetLitOrUpperTechnite(t.Location);
-                            t.SetNextTask(Technite.Task.TransferMatterTo, target, t.CurrentResources.Matter);
-                            break;
+                            if(target != Grid.RelativeCell.Invalid)
+                            {
+                                t.SetNextTask(Technite.Task.TransferMatterTo, target, t.CurrentResources.Matter);
+                                break;
+                            }
                         }
                         target = Helper.GetMaxMatterGnawChoice(t.Location);
                         if (target != Grid.RelativeCell.Invalid)
@@ -485,7 +495,7 @@ namespace TechniteLogic
                             break;
                         }
                         target = Helper.GetUnlitOrLowerTechnite(t.Location);
-                        if(t.CurrentResources.Energy > 0)
+                        if(t.CurrentResources.Energy > 0 && target != Grid.RelativeCell.Invalid)
                         {
                             t.SetNextTask(Technite.Task.TransferEnergyTo, target, t.CurrentResources.Energy);
                             break;

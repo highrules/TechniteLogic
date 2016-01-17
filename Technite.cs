@@ -25,12 +25,13 @@ namespace TechniteLogic
                             SplitMatterCost = 5,
                             EnergyPackageSize = 5,
                             MatterPackageSize = 5;
-        public byte         mystate = 50;
+        public byte         mystate = 51;
         public bool root = false,
                     selfTransform = false,
                     grow_left = false,
                     grow_right = true,
                     grow_up = true,
+                    grow_side = true,
                     done = false;
 
 		/// <summary>
