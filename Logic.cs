@@ -435,13 +435,19 @@ namespace TechniteLogic
                             if (t.grow_up)
                             {
                                 target = new Grid.RelativeCell(15, 1);
-                                t.SetNextTask(Technite.Task.GrowTo, target);
-                                t.done = true;
-                                t.grow_up = false;
+                                if(target != Grid.RelativeCell.Invalid)
+                                {
+                                    t.SetNextTask(Technite.Task.GrowTo, target);
+                                    t.done = true;
+                                    t.grow_up = false;
+                                    break;
+                                }
+                                t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
                                 break;
+                                
                             }
                         }
-                        else if(t.CanGnawAt && t.CurrentResources.Matter <= 5)          //!!!!CanGnawAt überprüft, ob der technite die nötige energie zum nagen hat, nicht ob es ein nageziel gibt!!!!
+                        if(t.CanGnawAt && t.CurrentResources.Matter <= 5)          //!!!!CanGnawAt überprüft, ob der technite die nötige energie zum nagen hat, nicht ob es ein nageziel gibt!!!!
                         {
                             target = Helper.GetMaxMatterGnawChoice(t.Location);          // maxGnawChoice
                             if(target != Grid.RelativeCell.Invalid)
@@ -450,7 +456,7 @@ namespace TechniteLogic
                                 break;
                             }
                         }
-                        else if (t.CurrentResources.Energy > 10)
+                        if (t.CurrentResources.Energy > 10)
                         {
                             target = Helper.GetUnlitOrLowerTechnite(t.Location);
                             t.SetNextTask(Technite.Task.TransferEnergyTo, target, 5);
@@ -480,7 +486,11 @@ namespace TechniteLogic
                         }
                         target = Helper.GetUnlitOrLowerTechnite(t.Location);
                         if(t.CurrentResources.Energy > 0)
-                        t.SetNextTask(Technite.Task.TransferEnergyTo, target, t.CurrentResources.Energy);
+                        {
+                            t.SetNextTask(Technite.Task.TransferEnergyTo, target, t.CurrentResources.Energy);
+                            break;
+                        }
+                        
                         t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
                         break;
                 }
