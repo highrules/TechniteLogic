@@ -1,0 +1,347 @@
+19.01.2016 18:55:52	Important							Connecting to server on port 30000
+19.01.2016 18:55:55	Important							Connecting to server on port 30000
+19.01.2016 18:55:56	Common							Connected. Authenticating...
+19.01.2016 18:55:56	Common							Received last node-chunk. Completing graph
+19.01.2016 18:55:56	Common							CellStack.Setup: height per layer=0,7, layers per stack=32
+19.01.2016 18:55:56	Common							Set world core content to Granite
+19.01.2016 18:55:56	Common							Applying world delta at range 0...1962 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 1962...3002 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 3002...4042 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 4042...5082 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 5082...6122 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 6122...7162 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 7162...8202 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 8202...9242 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 9242...10282 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 10282...11322 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 11322...12362 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 12362...13402 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 13402...14442 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 14442...15482 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 15482...16522 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 16522...17562 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 17562...18602 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 18602...19642 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 19642...20682 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 20682...21722 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 21722...22762 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 22762...23802 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 23802...24842 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 24842...25882 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 25882...26922 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 26922...27962 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 27962...29002 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 29002...30042 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 30042...31082 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 31082...32122 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 32122...33162 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 33162...34202 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 34202...35242 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 35242...36282 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 36282...37322 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 37322...38362 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 38362...39402 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 39402...40442 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 40442...41482 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 41482...42522 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 42522...43562 /43562
+19.01.2016 18:55:56	Important							Session started: e5f5ed6fa252e5489581472ff2af0dea in round 679/0
+19.01.2016 18:55:56	Common							Instructing technites in round 679/0
+19.01.2016 18:55:56	Common							ProcessTechnites()
+19.01.2016 18:55:56	Common							Sending 0 technite data response chunks
+19.01.2016 18:55:56	Common							Applying world delta at range 27962...29002 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 29002...30042 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 30042...31082 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 31082...32122 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 32122...33162 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 33162...34202 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 34202...35242 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 35242...36282 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 36282...37322 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 37322...38362 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 38362...39402 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 39402...40442 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 40442...41482 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 41482...42522 /43562
+19.01.2016 18:55:56	Common							Applying world delta at range 42522...43562 /43562
+19.01.2016 18:55:56	Common							Instructing technites in round 679/0
+19.01.2016 18:55:56	Common							ProcessTechnites()
+19.01.2016 18:55:56	Common							Sending 0 technite data response chunks
+19.01.2016 18:55:56	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:55:56	Low							19807[15] (TTL=64, Lit=True) {Energy=2, Matter=0} created
+19.01.2016 18:55:56	Common							1 technite(s) were created this round.
+19.01.2016 18:55:56	Common							Instructing technites in round 679/0
+19.01.2016 18:55:56	Common							ProcessTechnites()
+19.01.2016 18:56:13	Common							Sending 1 technite data response chunks
+19.01.2016 18:56:13	Common							Applying world delta at range 19642...20682 /43562
+19.01.2016 18:56:13	Common							Applying world delta at range 19642...20682 /43562
+19.01.2016 18:56:13	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:56:14	Common							Instructing technites in round 680/0
+19.01.2016 18:56:14	Common							ProcessTechnites()
+19.01.2016 18:56:18	Common							Sending 1 technite data response chunks
+19.01.2016 18:56:18	Common							Applying world delta at range 19642...20682 /43562
+19.01.2016 18:56:18	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:56:18	Common							Instructing technites in round 680/1
+19.01.2016 18:56:18	Common							ProcessTechnites()
+19.01.2016 18:57:11	Common							Sending 1 technite data response chunks
+19.01.2016 18:57:11	Common							Applying world delta at range 19642...20682 /43562
+19.01.2016 18:57:11	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:57:12	Common							Instructing technites in round 681/0
+19.01.2016 18:57:12	Common							ProcessTechnites()
+19.01.2016 18:57:17	Common							Sending 1 technite data response chunks
+19.01.2016 18:57:17	Common							Applying world delta at range 19642...20682 /43562
+19.01.2016 18:57:17	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:57:18	Common							Instructing technites in round 681/1
+19.01.2016 18:57:18	Common							ProcessTechnites()
+19.01.2016 18:57:18	Common							Sending 1 technite data response chunks
+19.01.2016 18:57:18	Common							Applying world delta at range 19642...20682 /43562
+19.01.2016 18:57:18	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:57:19	Common							Instructing technites in round 682/0
+19.01.2016 18:57:19	Common							ProcessTechnites()
+19.01.2016 18:57:19	Common							Sending 1 technite data response chunks
+19.01.2016 18:57:19	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:57:20	Common							Instructing technites in round 682/1
+19.01.2016 18:57:20	Common							ProcessTechnites()
+19.01.2016 18:57:20	Common							Sending 1 technite data response chunks
+19.01.2016 18:57:20	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:57:20	Common							Instructing technites in round 683/0
+19.01.2016 18:57:20	Common							ProcessTechnites()
+19.01.2016 18:57:20	Common							Sending 1 technite data response chunks
+19.01.2016 18:57:20	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:57:21	Common							Instructing technites in round 683/1
+19.01.2016 18:57:21	Common							ProcessTechnites()
+19.01.2016 18:57:21	Common							Sending 1 technite data response chunks
+19.01.2016 18:57:21	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:57:22	Common							Instructing technites in round 684/0
+19.01.2016 18:57:22	Common							ProcessTechnites()
+19.01.2016 18:57:22	Common							Sending 1 technite data response chunks
+19.01.2016 18:57:22	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:57:23	Common							Instructing technites in round 684/1
+19.01.2016 18:57:23	Common							ProcessTechnites()
+19.01.2016 18:57:23	Common							Sending 1 technite data response chunks
+19.01.2016 18:57:23	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:57:23	Common							Instructing technites in round 685/0
+19.01.2016 18:57:23	Common							ProcessTechnites()
+19.01.2016 18:57:23	Common							Sending 1 technite data response chunks
+19.01.2016 18:57:23	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:57:24	Common							Instructing technites in round 685/1
+19.01.2016 18:57:24	Common							ProcessTechnites()
+19.01.2016 18:57:24	Common							Sending 1 technite data response chunks
+19.01.2016 18:57:24	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:57:25	Common							Instructing technites in round 686/0
+19.01.2016 18:57:25	Common							ProcessTechnites()
+19.01.2016 18:57:25	Common							Sending 1 technite data response chunks
+19.01.2016 18:57:25	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:57:26	Common							Instructing technites in round 686/1
+19.01.2016 18:57:26	Common							ProcessTechnites()
+19.01.2016 18:57:26	Common							Sending 1 technite data response chunks
+19.01.2016 18:57:26	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:57:26	Common							Instructing technites in round 687/0
+19.01.2016 18:57:26	Common							ProcessTechnites()
+19.01.2016 18:57:26	Common							Sending 1 technite data response chunks
+19.01.2016 18:57:26	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:57:27	Common							Instructing technites in round 687/1
+19.01.2016 18:57:27	Common							ProcessTechnites()
+19.01.2016 18:57:27	Common							Sending 1 technite data response chunks
+19.01.2016 18:57:27	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:57:28	Common							Instructing technites in round 688/0
+19.01.2016 18:57:28	Common							ProcessTechnites()
+19.01.2016 18:57:28	Common							Sending 1 technite data response chunks
+19.01.2016 18:57:28	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:57:29	Common							Instructing technites in round 688/1
+19.01.2016 18:57:29	Common							ProcessTechnites()
+19.01.2016 18:57:29	Common							Sending 1 technite data response chunks
+19.01.2016 18:57:29	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:57:29	Common							Instructing technites in round 689/0
+19.01.2016 18:57:29	Common							ProcessTechnites()
+19.01.2016 18:57:29	Common							Sending 1 technite data response chunks
+19.01.2016 18:57:29	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:57:30	Common							Instructing technites in round 689/1
+19.01.2016 18:57:30	Common							ProcessTechnites()
+19.01.2016 18:57:30	Common							Sending 1 technite data response chunks
+19.01.2016 18:57:30	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:57:31	Common							Instructing technites in round 690/0
+19.01.2016 18:57:31	Common							ProcessTechnites()
+19.01.2016 18:57:31	Common							Sending 1 technite data response chunks
+19.01.2016 18:57:31	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:57:32	Common							Instructing technites in round 690/1
+19.01.2016 18:57:32	Common							ProcessTechnites()
+19.01.2016 18:58:45	Common							Sending 1 technite data response chunks
+19.01.2016 18:58:45	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:58:45	Common							Instructing technites in round 691/0
+19.01.2016 18:58:45	Common							ProcessTechnites()
+19.01.2016 18:58:45	Common							Sending 1 technite data response chunks
+19.01.2016 18:58:46	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:58:46	Common							Instructing technites in round 691/1
+19.01.2016 18:58:46	Common							ProcessTechnites()
+19.01.2016 18:58:46	Common							Sending 1 technite data response chunks
+19.01.2016 18:58:46	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:58:47	Common							Instructing technites in round 692/0
+19.01.2016 18:58:47	Common							ProcessTechnites()
+19.01.2016 18:58:47	Common							Sending 1 technite data response chunks
+19.01.2016 18:58:47	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:58:48	Common							Instructing technites in round 692/1
+19.01.2016 18:58:48	Common							ProcessTechnites()
+19.01.2016 18:58:48	Common							Sending 1 technite data response chunks
+19.01.2016 18:58:48	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:58:48	Common							Instructing technites in round 693/0
+19.01.2016 18:58:48	Common							ProcessTechnites()
+19.01.2016 18:58:48	Common							Sending 1 technite data response chunks
+19.01.2016 18:58:49	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:58:49	Common							Instructing technites in round 693/1
+19.01.2016 18:58:49	Common							ProcessTechnites()
+19.01.2016 18:58:49	Common							Sending 1 technite data response chunks
+19.01.2016 18:58:49	Common							Applying world delta at range 18602...19642 /43562
+19.01.2016 18:58:49	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:58:50	Common							Instructing technites in round 694/0
+19.01.2016 18:58:50	Common							ProcessTechnites()
+19.01.2016 18:58:50	Common							Sending 1 technite data response chunks
+19.01.2016 18:58:50	Common							Applying world delta at range 18602...19642 /43562
+19.01.2016 18:58:50	Common							Applying world delta at range 19642...20682 /43562
+19.01.2016 18:58:50	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:58:51	Common							Instructing technites in round 694/1
+19.01.2016 18:58:51	Common							ProcessTechnites()
+19.01.2016 18:58:51	Common							Sending 1 technite data response chunks
+19.01.2016 18:58:51	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:58:51	Common							Instructing technites in round 695/0
+19.01.2016 18:58:51	Common							ProcessTechnites()
+19.01.2016 18:58:51	Common							Sending 1 technite data response chunks
+19.01.2016 18:58:52	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:58:52	Common							Instructing technites in round 695/1
+19.01.2016 18:58:52	Common							ProcessTechnites()
+19.01.2016 18:58:52	Common							Sending 1 technite data response chunks
+19.01.2016 18:58:52	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:58:53	Common							Instructing technites in round 696/0
+19.01.2016 18:58:53	Common							ProcessTechnites()
+19.01.2016 18:58:53	Common							Sending 1 technite data response chunks
+19.01.2016 18:58:53	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:58:54	Common							Instructing technites in round 696/1
+19.01.2016 18:58:54	Common							ProcessTechnites()
+19.01.2016 18:58:54	Common							Sending 1 technite data response chunks
+19.01.2016 18:58:54	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:58:54	Common							Instructing technites in round 697/0
+19.01.2016 18:58:54	Common							ProcessTechnites()
+19.01.2016 18:58:54	Common							Sending 1 technite data response chunks
+19.01.2016 18:58:55	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:58:55	Common							Instructing technites in round 697/1
+19.01.2016 18:58:55	Common							ProcessTechnites()
+19.01.2016 18:58:55	Common							Sending 1 technite data response chunks
+19.01.2016 18:58:55	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:58:56	Common							Instructing technites in round 698/0
+19.01.2016 18:58:56	Common							ProcessTechnites()
+19.01.2016 18:58:56	Common							Sending 1 technite data response chunks
+19.01.2016 18:58:56	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:58:57	Common							Instructing technites in round 698/1
+19.01.2016 18:58:57	Common							ProcessTechnites()
+19.01.2016 18:58:57	Common							Sending 1 technite data response chunks
+19.01.2016 18:58:57	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:58:57	Common							Instructing technites in round 699/0
+19.01.2016 18:58:57	Common							ProcessTechnites()
+19.01.2016 18:58:57	Common							Sending 1 technite data response chunks
+19.01.2016 18:58:58	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:58:58	Common							Instructing technites in round 699/1
+19.01.2016 18:58:58	Common							ProcessTechnites()
+19.01.2016 18:58:58	Common							Sending 1 technite data response chunks
+19.01.2016 18:58:58	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:58:59	Common							Instructing technites in round 700/0
+19.01.2016 18:58:59	Common							ProcessTechnites()
+19.01.2016 18:58:59	Common							Sending 1 technite data response chunks
+19.01.2016 18:58:59	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:00	Common							Instructing technites in round 700/1
+19.01.2016 18:59:00	Common							ProcessTechnites()
+19.01.2016 18:59:00	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:00	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:00	Common							Instructing technites in round 701/0
+19.01.2016 18:59:00	Common							ProcessTechnites()
+19.01.2016 18:59:00	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:01	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:01	Common							Instructing technites in round 701/1
+19.01.2016 18:59:01	Common							ProcessTechnites()
+19.01.2016 18:59:01	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:01	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:02	Common							Instructing technites in round 702/0
+19.01.2016 18:59:02	Common							ProcessTechnites()
+19.01.2016 18:59:02	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:02	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:03	Common							Instructing technites in round 702/1
+19.01.2016 18:59:03	Common							ProcessTechnites()
+19.01.2016 18:59:03	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:03	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:03	Common							Instructing technites in round 703/0
+19.01.2016 18:59:03	Common							ProcessTechnites()
+19.01.2016 18:59:03	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:03	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:04	Common							Instructing technites in round 703/1
+19.01.2016 18:59:04	Common							ProcessTechnites()
+19.01.2016 18:59:04	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:04	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:05	Common							Instructing technites in round 704/0
+19.01.2016 18:59:05	Common							ProcessTechnites()
+19.01.2016 18:59:05	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:05	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:06	Common							Instructing technites in round 704/1
+19.01.2016 18:59:06	Common							ProcessTechnites()
+19.01.2016 18:59:06	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:06	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:06	Common							Instructing technites in round 705/0
+19.01.2016 18:59:06	Common							ProcessTechnites()
+19.01.2016 18:59:06	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:06	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:07	Common							Instructing technites in round 705/1
+19.01.2016 18:59:07	Common							ProcessTechnites()
+19.01.2016 18:59:07	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:07	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:08	Common							Instructing technites in round 706/0
+19.01.2016 18:59:08	Common							ProcessTechnites()
+19.01.2016 18:59:08	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:08	Common							Applying world delta at range 15482...16522 /43562
+19.01.2016 18:59:08	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:09	Common							Instructing technites in round 706/1
+19.01.2016 18:59:09	Common							ProcessTechnites()
+19.01.2016 18:59:09	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:09	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:09	Common							Instructing technites in round 707/0
+19.01.2016 18:59:09	Common							ProcessTechnites()
+19.01.2016 18:59:09	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:09	Common							Applying world delta at range 15482...16522 /43562
+19.01.2016 18:59:09	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:10	Common							Instructing technites in round 707/1
+19.01.2016 18:59:10	Common							ProcessTechnites()
+19.01.2016 18:59:10	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:10	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:11	Common							Instructing technites in round 708/0
+19.01.2016 18:59:11	Common							ProcessTechnites()
+19.01.2016 18:59:11	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:11	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:12	Common							Instructing technites in round 708/1
+19.01.2016 18:59:12	Common							ProcessTechnites()
+19.01.2016 18:59:12	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:12	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:12	Common							Instructing technites in round 709/0
+19.01.2016 18:59:12	Common							ProcessTechnites()
+19.01.2016 18:59:12	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:12	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:13	Common							Instructing technites in round 709/1
+19.01.2016 18:59:13	Common							ProcessTechnites()
+19.01.2016 18:59:13	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:13	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:14	Common							Instructing technites in round 710/0
+19.01.2016 18:59:14	Common							ProcessTechnites()
+19.01.2016 18:59:14	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:14	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:15	Common							Instructing technites in round 710/1
+19.01.2016 18:59:15	Common							ProcessTechnites()
+19.01.2016 18:59:15	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:15	Common							Received technite state chunk containing 1 technites
+19.01.2016 18:59:15	Common							Instructing technites in round 711/0
+19.01.2016 18:59:15	Common							ProcessTechnites()
+19.01.2016 18:59:15	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:15	Common							Applying world delta at range 19642...20682 /43562
+19.01.2016 18:59:15	Common							Applying world delta at range 19642...20682 /43562
+19.01.2016 18:59:16	Common							Instructing technites in round 711/1
+19.01.2016 18:59:16	Common							ProcessTechnites()
+19.01.2016 18:59:16	Common							Sending 1 technite data response chunks
+19.01.2016 18:59:16	Common							Set world core content to Granite
+19.01.2016 18:59:16	Important							Connection lost to host.
+19.01.2016 18:59:18	Important							Connecting to server on port 30000
+19.01.2016 18:59:21	Important							Connecting to server on port 30000
