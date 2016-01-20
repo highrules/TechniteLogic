@@ -19,15 +19,16 @@ namespace TechniteLogic
         /// <summary>
         /// Currently constant cost values. Will be moved into the protocol, and specified by the server soon.
         /// </summary>
-        public static byte ConsumeEnergyCost = 2,
-                            GnatAtEnergyCost = 1,
-                            SplitEnergyCost = 5,
-                            SplitMatterCost = 5,
-                            EnergyPackageSize = 5,
-                            MatterPackageSize = 5;
-        public byte         mystate = 51;
-        public bool selfTransform = false,
-                    done = false;
+        public static byte      ConsumeEnergyCost = 2,
+                                GnatAtEnergyCost = 1,
+                                SplitEnergyCost = 5,
+                                SplitMatterCost = 5,
+                                EnergyPackageSize = 5,
+                                MatterPackageSize = 5;
+        public Logic.MyState    mystate;
+        public bool             selfTransform = false,
+                                done = false,
+                                consumeAround = false;
 
 		/// <summary>
 		/// Amount of matter than can be extracted from the respective grid content type.
