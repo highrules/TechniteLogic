@@ -28,6 +28,7 @@ namespace TechniteLogic
         public Logic.MyState    mystate;
         public bool             selfTransform = false,
                                 done = false,
+                                tryTransfer = false,
                                 consumeAround = false;
 
 		/// <summary>
