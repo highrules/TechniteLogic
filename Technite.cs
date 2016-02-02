@@ -29,13 +29,15 @@ namespace TechniteLogic
         public bool             selfTransform = false,
                                 done = false,
                                 tryTransfer = false,
-                                consumeAround = false;
+                                consumeAround = false,
+                                NotFinishedYet = true,
+                                TransferAndWait = false;
 
-		/// <summary>
-		/// Amount of matter than can be extracted from the respective grid content type.
-		/// Gnawing at a block currently yields half this amount (rounded down)
-		/// </summary>
-		public static byte[] MatterYield = new byte[Enum.GetValues(typeof(Grid.Content)).Length - 1];//discounting Undefined
+        /// <summary>
+        /// Amount of matter than can be extracted from the respective grid content type.
+        /// Gnawing at a block currently yields half this amount (rounded down)
+        /// </summary>
+        public static byte[] MatterYield = new byte[Enum.GetValues(typeof(Grid.Content)).Length - 1];//discounting Undefined
 
 		public static byte[] MatterDegradeTo = new byte[Enum.GetValues(typeof(Grid.Content)).Length - 1];//discounting Undefined
 

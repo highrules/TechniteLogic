@@ -15,8 +15,7 @@ namespace TechniteLogic
             static List<KeyValuePair<int, Grid.RelativeCell>> options = new List<KeyValuePair<int, Grid.RelativeCell>>();
             static Random random = new Random();
 
-            public const int NotAChoice = 0;
-
+            public const int NotAChoice = 0, NotFinishedYet = 2;
             /// <summary>
             /// Evaluates all possible neighbor cells. The return values of <paramref name="f"/> are used as probability multipliers 
             /// to chose a random a option.
@@ -171,14 +170,18 @@ namespace TechniteLogic
             {
                 options.Clear();
                 int total = 0;
-
+                Technite t = Technite.Find(location);
 
                 foreach (var n in location.GetRelativeDeltaNeighbors((int)delta)) //cast in int überflüssig
                 {
                     Grid.CellID cellLocation = location + n;
 
                     int q = f(n, cellLocation);
-                    if (q > 0)
+                    if (q == 2)
+                    {
+                        t.TransferAndWait = true;
+                    }
+                    if (q == 1)
                     {
                         total += q;
 
@@ -187,7 +190,10 @@ namespace TechniteLogic
 
                 }
                 if (total == 0)
+                {
+                    t.TransferAndWait = false;
                     return Grid.RelativeCell.Invalid;
+                }
                 if (options.Count == 1)
                     return options[0].Value;
                 int c = random.Next(total);
@@ -279,7 +285,8 @@ namespace TechniteLogic
                     if (Grid.World.GetCell(cell).content == Grid.Content.Clear || Grid.World.GetCell(cell).content == Grid.Content.Water)
                     // check for different faction e.g. enemy technites
                     {
-                        if (Grid.World.GetCell(cell).content != Grid.Content.Foundation && Grid.World.GetCell(cell).content != Grid.Content.Technite) //baut auch in Berge
+                        if (Grid.World.GetCell(cell).content != Grid.Content.Foundation && Grid.World.GetCell(cell).content != Grid.Content.Technite
+                                                            && Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite) //baut auch in Berge
                         {
                             if (Technite.EnoughSupportHere(cell))
                                 return 1;
@@ -325,7 +332,7 @@ namespace TechniteLogic
             public static Grid.RelativeCell EvaluateMinResourceTransferChoices(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
             {
                 options.Clear();
-                foreach (var n in location.GetRelativeNeighbors())
+                foreach (var n in location.GetRelativeDeltaNeighbors(-1))
                 {
                     Grid.CellID cellLocation = location + n;
                     if (Grid.World.GetCell(cellLocation).content == Grid.Content.Technite)
@@ -333,8 +340,17 @@ namespace TechniteLogic
                         int q = f(n, cellLocation);  // q = current matter of technite n
                         options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
                     }
-
                 }
+                //foreach (var n in location.GetRelativeDeltaNeighbors(0))
+                //{
+                //    Grid.CellID cellLocation = location + n;
+                //    if (Grid.World.GetCell(cellLocation).content == Grid.Content.Technite)
+                //    {
+                //        int q = f(n, cellLocation);  // q = current matter of technite n
+                //        options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
+                //    }
+                //}
+
                 if (options.Count == 0)
                     return Grid.RelativeCell.Invalid;
                 if (options.Count == 1)
@@ -390,7 +406,21 @@ namespace TechniteLogic
                     return curMatter;
                 });
             }
-            
+
+            /// <summary>
+            /// Determines a cell of the upper neighbor
+            /// von uns
+            /// </summary>
+            /// <param name="location"></param>
+            /// <returns></returns>
+            public static Grid.RelativeCell GetMinEnergyNeighbourTechnite(Grid.CellID location)
+            {
+                return EvaluateMinResourceNeighborTechnites(location, (relative, technite) =>
+                {
+                    int curEnergy = technite.CurrentResources.Energy;
+                    return curEnergy;
+                });
+            }
 
             /*--------------------------------------------------------------------------------*/
         }
@@ -427,8 +457,9 @@ namespace TechniteLogic
                     firstRound = false;
                     t.done = true;
                 }
-
-                if(t.selfTransform)
+                if (t.TransferAndWait)
+                    t.mystate = MyState.transfer;
+                else if (t.selfTransform)
                 {
                     // t.mystate = t.CurrentResources.Matter >= 10 ? t.mystate = 1 : t.mystate = 0;
                     if(t.CurrentResources.Matter >= 10)
@@ -540,6 +571,30 @@ namespace TechniteLogic
                             t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
                             break;
                         }
+
+                    case MyState.transfer:
+                        {
+                            //if (!(t.LastResources.Energy <= t.CurrentResources.Energy)) // got energy transfered
+                            //{
+                            target = Helper.GetMinEnergyNeighbourTechnite(t.Location);
+
+                            if (target != Grid.RelativeCell.Invalid)
+                            {
+                                Technite targetTechnite = Technite.Find(t.Location + target);
+                                if (t.CurrentResources.Energy > 10)
+                                {
+                                    if (!targetTechnite.Status.Lit && targetTechnite.CurrentResources.Energy < t.CurrentResources.Energy)
+                                    {
+                                        t.SetNextTask(Technite.Task.TransferEnergyTo, target, (byte)(t.CurrentResources.Energy - 10));
+                                        break;
+                                    }
+                                }
+                            }
+                            else
+                                t.TransferAndWait = false;
+                            t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
+                            break;
+                        }
                     case MyState.growDown: // grow down
                         {
                             if (t.CanSplit)
@@ -559,18 +614,30 @@ namespace TechniteLogic
                                         t.SetNextTask(Technite.Task.GrowTo, target);
                                         break;
                                     }
+                                    else if (Grid.World.GetCell(cell.BottomNeighbor).content == Grid.Content.Technite)
+                                    {
+                                        t.TransferAndWait = true;
+                                        t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
+                                        break;
+                                    }  
                                 }
                                 else if (t.Location.StackID == startPosition)
                                 {
                                     t.done = true;
                                     //t.selfTransform = true;
                                     //t.consumeAround = true;
-
                                 }
                                 else
                                 {
-                                    t.done = true;
-                                    t.selfTransform = true;
+                                    target = new Grid.RelativeCell(15, 1);
+                                    Grid.CellID absoluteTarget = t.Location + target;
+                                    if (Grid.World.GetCell(absoluteTarget.BottomNeighbor).content != Grid.Content.Technite)
+                                    {
+                                        t.done = true;
+                                        t.selfTransform = true;
+                                    }
+                                    else
+                                        t.TransferAndWait = true;
                                 }
                             }
                             t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);

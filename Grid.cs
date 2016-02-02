@@ -100,7 +100,7 @@ namespace TechniteLogic
 		/// <param name="content">Content type to check</param>
 		/// <param name="includeTechnites">Set true to also consider technites as solid</param>
 		/// <returns>True, if the specified content type is solid enough to support a technite, false otherwise</returns>
-		public static bool IsSolid(Content content, bool includeTechnites=false)
+		public static bool IsSolid(Content content, bool includeTechnites=true)
 		{
 			return content == Content.Earth 
 				|| content == Content.Foundation 
@@ -120,7 +120,7 @@ namespace TechniteLogic
 		/// <param name="location">Location to check the content of</param>
 		/// <param name="includeTechnites">Set true to also consider technites as solid</param>
 		/// <returns>True, if the determined content type is solid enough to support a technite, false otherwise</returns>
-		public static bool IsSolid(CellID location, bool includeTechnites=false)
+		public static bool IsSolid(CellID location, bool includeTechnites=true)
 		{
 			return IsSolid(World.GetCell(location).content,includeTechnites);
 		}
