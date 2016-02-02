@@ -26,13 +26,17 @@ namespace TechniteLogic
             SplitMatterCost = 5,
             EnergyPackageSize = 5,
             MatterPackageSize = 5;
+        public static bool
+            someoneOutThereBeggingForEnergy = false;
 
         public Logic.MyState mystate;
         public bool
             selfTransform = false,
             grow_horizontally_done = false,
-            NotFinishedYet = false,
-            consumeAround = false;
+            //NotFinishedYet = false,
+            consumeAround = false,
+            needEnergy = false,
+            tryTransferEnergy = false;
 
 
         /// <summary>
@@ -794,15 +798,15 @@ namespace TechniteLogic
 
         internal static bool EnoughSupportHere(Grid.CellID cell)
         {
-            byte foundationNeighbors = 0;
+            //byte foundationNeighbors = 0;
             if (Grid.IsSolid(cell.BottomNeighbor))
                 return true;
             foreach (var n0 in cell.GetHorizontalNeighbors())
             {
-                if (Grid.World.GetCell(n0).content == Grid.Content.Foundation) foundationNeighbors++;
+                //if (Grid.World.GetCell(n0).content == Grid.Content.Foundation) foundationNeighbors++;
                 if (Grid.IsSolid(n0) && Grid.IsSolid(n0.BottomNeighbor))
                     return true;
-                if (foundationNeighbors >= 2) return true;
+                //if (foundationNeighbors >= 2) return true;
             }
             return false;
         }
