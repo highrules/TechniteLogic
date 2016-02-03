@@ -549,6 +549,16 @@ namespace TechniteLogic
             Out.Log(Significance.Common, "ProcessTechnites()");
 
             Grid.RelativeCell target;
+            foreach (Technite tech in Technite.All)
+            {
+                if (!tech.Status.Lit && tech.needEnergy)
+                {
+                    Technite.someoneOutThereBeggingForEnergy = true;
+                    break;
+                }
+                else Technite.someoneOutThereBeggingForEnergy = false;
+            }
+
             foreach (Technite t in Technite.All)
             {
                 if (firstRound)
@@ -557,11 +567,11 @@ namespace TechniteLogic
                     firstRound = false;
                     t.grow_horizontally_done = true;
                 }
-                if(t.needEnergy)
-                {
-                    Technite.someoneOutThereBeggingForEnergy = true;
-                }
-                if (t.selfTransform)
+                
+                    //if(!t.Status.Lit && t.CurrentResources.Energy > 5)
+                    //    Technite.someoneOutThereBeggingForEnergy = false;
+
+                    if (t.selfTransform)
                 {
                     if (t.CurrentResources.Matter >= 10)
                         t.mystate = MyState.transformFoundation;
@@ -571,53 +581,42 @@ namespace TechniteLogic
                 {
                     if (t.CanSplit)
                     {
-                        //if(t.tryTransferEnergy)
-                        //{
-                        //    t.mystate = MyState.transferEnergy;
-                        //}
+                        t.needEnergy = false;
                         if (!t.grow_horizontally_done)
                         {
                             t.mystate = MyState.growHorizontally;
                         }
                         else if (t.Location.StackID == startPosition)
-                            if (t.CurrentResources.Matter >= 15) t.mystate = MyState.growUp;
+                            if (t.CurrentResources.Matter >= 15 && !Technite.someoneOutThereBeggingForEnergy) t.mystate = MyState.growUp;
                             else t.mystate = MyState.gnawOrConsume;
                         else if (t.consumeAround)
                         {
                             t.mystate = MyState.consumeAround;
                         }
-                        else if (t.tryTransferEnergy)
+                        else if (t.tryTransferEnergy && t.Status.Lit)
                         {
                             t.mystate = MyState.transferEnergy;
                         }
                         else
                         {
                             if (t.consumeAround)
-                            {
                                 t.mystate = MyState.consumeAround;
-                            }
                             else if (t.CurrentResources.Matter >= 10) t.mystate = MyState.transformFoundation;
                             else t.mystate = MyState.gnawOrConsume;
                         }
                     }
                     else
                     {
-                        if(t.CurrentResources.Matter >= 5)
-                        {
-                            if(t.Status.Lit)
-                            {
-                                t.mystate = MyState.doNothing;
-                            }
-                            else
-                                t.mystate = MyState.callForEnergy;             // not waiting anymore, but calling for energy now
-                        }
+                        if (t.Status.Lit)
+                            t.mystate = MyState.doNothing;
                         else
-                            t.mystate = MyState.gnawOrConsume;
+                            t.mystate = MyState.callForEnergy;             // not waiting anymore, but calling for energy now
                     }
                 }
+                else if (!t.Status.Lit && !t.CanGnawAt)
+                    t.mystate = MyState.callForEnergy;
                 else t.mystate = MyState.gnawOrConsume;
-
-
+                
                 switch (t.mystate)
                 {
                     case MyState.gnawOrConsume: // gnaw or consume if MatterYield <= 1
@@ -682,14 +681,12 @@ namespace TechniteLogic
                             }
                             else
                             {
-                                //if (!t.NotFinishedYet)
-                                //{
                                 if (t.consumeAround)
                                 {
                                     t.grow_horizontally_done = true;
                                     if (t.Location.StackID != startPosition)
                                     {
-                                        //t.selfTransform = true;
+                                        // t.selfTransform = true;
                                         t.tryTransferEnergy = true;
                                     }
                                 }
@@ -697,9 +694,6 @@ namespace TechniteLogic
                                 {
                                     t.consumeAround = true;
                                 }
-                                    
-                                    
-                                //}
                             }
                             t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
                             break;
@@ -718,7 +712,7 @@ namespace TechniteLogic
                                 }
                                 else
                                 {
-                                    if(Technite.someoneOutThereBeggingForEnergy == false)
+                                    if(!Technite.someoneOutThereBeggingForEnergy)
                                     {
                                         t.consumeAround = false;
                                         t.tryTransferEnergy = true;
@@ -733,6 +727,7 @@ namespace TechniteLogic
                     case MyState.callForEnergy: // a technite is calling for energy. Hopefully a neighbor requests his call.
                         //lastTask?
                         t.needEnergy = true;    // wird nicht mehr zurückgesetzt, weil t dann foundation sein sollte
+                        Technite.someoneOutThereBeggingForEnergy = true;
                         t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self); // wait for energy
                         break;
 
@@ -748,6 +743,7 @@ namespace TechniteLogic
                                 {
                                     byte unusableEnergy = (byte)(t.CurrentResources.Energy - 5);
                                     t.SetNextTask(Technite.Task.TransferEnergyTo, target, unusableEnergy);
+                                    break;
                                 }
                                 else
                                 {
