@@ -16,7 +16,7 @@ namespace TechniteLogic
             static Random random = new Random();
 
             public const int NotAChoice = 0;
-                             //NotFinishedYet = 2;
+            //NotFinishedYet = 2;
             //public static int techniteNeighbors;
 
             /// <summary>
@@ -129,7 +129,7 @@ namespace TechniteLogic
                 {
                     Grid.Content content = Grid.World.GetCell(cell).content;
                     int yield = Technite.MatterYield[(int)content]; //zero is zero, no exceptions
-                    if(yield > 0) // später nochmals bei q > 0
+                    if (yield > 0) // später nochmals bei q > 0
                     {
                         if (Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite)
                             return yield;
@@ -181,7 +181,7 @@ namespace TechniteLogic
                 foreach (var n in location.GetRelativeDeltaNeighbors((int)delta)) //cast in int überflüssig
                 {
                     Grid.CellID cellLocation = location + n;
-                    
+
 
                     int q = f(n, cellLocation);
                     //if (q == 2) t.NotFinishedYet = true;
@@ -195,7 +195,7 @@ namespace TechniteLogic
                 }
                 if (total == 0)
                 {
-                //    t.NotFinishedYet = false;
+                    //    t.NotFinishedYet = false;
                     return Grid.RelativeCell.Invalid;
                 }
                 if (options.Count == 1)
@@ -218,8 +218,8 @@ namespace TechniteLogic
                     //{
                     Grid.Content content = Grid.World.GetCell(cell).content;
                     if (content != Grid.Content.Foundation && content != Grid.Content.Technite && content != Grid.Content.Water && content != Grid.Content.Clear)
-                    //if (Technite.EnoughSupportHere(cell))
-                        if(Grid.World.GetCell(location.BottomNeighbor).content == Grid.Content.Foundation)
+                        //if (Technite.EnoughSupportHere(cell))
+                        if (Grid.World.GetCell(location.BottomNeighbor).content == Grid.Content.Foundation)
                             return 1;
                     //}
                     return NotAChoice;
@@ -239,10 +239,10 @@ namespace TechniteLogic
                 {
                     Grid.Content content = Grid.World.GetCell(cell).content;
                     int yield = Technite.MatterYield[(int)content]; //zero is zero, no exceptions
-                    if(yield >= 2)
+                    if (yield >= 2)
                     {
                         //if(content != Grid.Content.Technite) // yield bei Technites ist 0
-                            return yield;
+                        return yield;
                     }
                     //int energyYield = Technite.EnergyYieldAtLayer[location.Layer];
                     return NotAChoice;
@@ -451,7 +451,7 @@ namespace TechniteLogic
                     {
                         bool q = f(n, cellLocation);  // q = is Technite n begging for Energy
                         //options.Add(new KeyValuePair<bool, Grid.RelativeCell>(q, n));
-                        if(q)
+                        if (q)
                         {
                             return n;
                         }
@@ -521,6 +521,17 @@ namespace TechniteLogic
                 });
             }
 
+            public static bool isThereNothingAboveMe(Grid.CellID target)
+            {
+                Grid.Content content = Grid.World.GetCell(target).content;
+                if (content != Grid.Content.Clear && content != Grid.Content.Water)
+                    return false;
+                else if (!target.IsValid)
+                {
+                    return true;
+                }
+                else return isThereNothingAboveMe(target.TopNeighbor);
+            }
 
             /*--------------------------------------------------------------------------------*/
         }
@@ -551,10 +562,15 @@ namespace TechniteLogic
             Grid.RelativeCell target;
             foreach (Technite tech in Technite.All)
             {
-                if (!tech.Status.Lit && tech.needEnergy)
+                if (!tech.Status.Lit)
                 {
-                    Technite.someoneOutThereBeggingForEnergy = true;
-                    break;
+                    if (tech.CurrentResources.Energy < 6)
+                    {
+                        tech.needEnergy = true;
+                        Technite.someoneOutThereBeggingForEnergy = true;
+                        break;
+                    }
+                    else Technite.someoneOutThereBeggingForEnergy = false;
                 }
                 else Technite.someoneOutThereBeggingForEnergy = false;
             }
@@ -567,11 +583,11 @@ namespace TechniteLogic
                     firstRound = false;
                     t.grow_horizontally_done = true;
                 }
-                
-                    //if(!t.Status.Lit && t.CurrentResources.Energy > 5)
-                    //    Technite.someoneOutThereBeggingForEnergy = false;
 
-                    if (t.selfTransform)
+                //if(!t.Status.Lit && t.CurrentResources.Energy > 5)
+                //    Technite.someoneOutThereBeggingForEnergy = false;
+
+                if (t.selfTransform && !Technite.someoneOutThereBeggingForEnergy)
                 {
                     if (t.CurrentResources.Matter >= 10)
                         t.mystate = MyState.transformFoundation;
@@ -579,7 +595,7 @@ namespace TechniteLogic
                 }
                 else if (t.CurrentResources.Matter >= 5)
                 {
-                    if (t.CanSplit)
+                    if (t.CurrentResources.Energy > 5)
                     {
                         t.needEnergy = false;
                         if (!t.grow_horizontally_done)
@@ -589,11 +605,11 @@ namespace TechniteLogic
                         else if (t.Location.StackID == startPosition)
                             if (t.CurrentResources.Matter >= 15 && !Technite.someoneOutThereBeggingForEnergy) t.mystate = MyState.growUp;
                             else t.mystate = MyState.gnawOrConsume;
-                        else if (t.consumeAround)
-                        {
-                            t.mystate = MyState.consumeAround;
-                        }
-                        else if (t.tryTransferEnergy && t.Status.Lit)
+                        //else if (t.consumeAround)
+                        //{
+                        //    t.mystate = MyState.consumeAround;
+                        //}
+                        else if (t.tryTransferEnergy)
                         {
                             t.mystate = MyState.transferEnergy;
                         }
@@ -601,7 +617,6 @@ namespace TechniteLogic
                         {
                             if (t.consumeAround)
                                 t.mystate = MyState.consumeAround;
-                            else if (t.CurrentResources.Matter >= 10) t.mystate = MyState.transformFoundation;
                             else t.mystate = MyState.gnawOrConsume;
                         }
                     }
@@ -616,7 +631,7 @@ namespace TechniteLogic
                 else if (!t.Status.Lit && !t.CanGnawAt)
                     t.mystate = MyState.callForEnergy;
                 else t.mystate = MyState.gnawOrConsume;
-                
+
                 switch (t.mystate)
                 {
                     case MyState.gnawOrConsume: // gnaw or consume if MatterYield <= 1
@@ -629,15 +644,15 @@ namespace TechniteLogic
                                     t.SetNextTask(Technite.Task.GnawAtSurroundingCell, target);
                                     break;
                                 }
-                                else
-                                {
-                                    target = Helper.GetFoodChoice(t.Location);
-                                    if(target != Grid.RelativeCell.Invalid)
-                                    {
-                                        t.SetNextTask(Technite.Task.ConsumeSurroundingCell, target);
-                                        break;
-                                    }
-                                }
+                                //else
+                                //{
+                                //    target = Helper.GetFoodChoice(t.Location);
+                                //    if (target != Grid.RelativeCell.Invalid)
+                                //    {
+                                //        t.SetNextTask(Technite.Task.ConsumeSurroundingCell, target);
+                                //        break;
+                                //    }
+                                //}
                             }
                             t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self); // wait for energy
                             break;
@@ -645,23 +660,42 @@ namespace TechniteLogic
 
                     case MyState.transformFoundation: // transform to foundation
 
-                            t.SetNextTask(Technite.Task.SelfTransformToType, Grid.RelativeCell.Self, 7);
-                            break;
+                        t.SetNextTask(Technite.Task.SelfTransformToType, Grid.RelativeCell.Self, 7);
+                        break;
 
                     case MyState.growUp: // grow up
                         {
-                            target = new Grid.RelativeCell(15, 1);
-                            if (target != Grid.RelativeCell.Invalid)
+                            foreach (Technite tech in Technite.All)
                             {
-                                Grid.CellID absoluteTarget = t.Location + target;
-                                if (absoluteTarget.IsValid)
+                                if (!tech.Status.Lit)
                                 {
-                                    t.SetNextTask(Technite.Task.GrowTo, target);
-                                    t.selfTransform = true;
-                                    break;
+                                    if (tech.CurrentResources.Energy < 6)
+                                    {
+                                        tech.needEnergy = true;
+                                        Technite.someoneOutThereBeggingForEnergy = true;
+                                        break;
+                                    }
+                                    else Technite.someoneOutThereBeggingForEnergy = false;
                                 }
-                                else // an der Decke angekommen
-                                    t.selfTransform = true;
+                                else Technite.someoneOutThereBeggingForEnergy = false;
+                            }
+                            if(Technite.Count == 1){
+                                if (!Technite.someoneOutThereBeggingForEnergy)
+                                {
+                                    target = new Grid.RelativeCell(15, 1);
+                                    if (target != Grid.RelativeCell.Invalid)
+                                    {
+                                        Grid.CellID absoluteTarget = t.Location + target;
+                                        if (absoluteTarget.IsValid)
+                                        {
+                                            t.SetNextTask(Technite.Task.GrowTo, target);
+                                            t.selfTransform = true;
+                                            break;
+                                        }
+                                        else // an der Decke angekommen
+                                            t.selfTransform = true;
+                                    }
+                                }
                             }
                             t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
                             break;
@@ -669,54 +703,56 @@ namespace TechniteLogic
 
                     case MyState.growHorizontally: // grow horizontal
                         {
-                            target = Helper.GetDeltaSplitTarget(t.Location, 0);
-                            if (target != Grid.RelativeCell.Invalid)
-                            {
-                                Grid.CellID absoluteTarget = t.Location + target;
-                                if (absoluteTarget.IsValid)
+                                target = Helper.GetDeltaSplitTarget(t.Location, 0);
+                                if (target != Grid.RelativeCell.Invalid)
                                 {
-                                    t.SetNextTask(Technite.Task.GrowTo, target);
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                if (t.consumeAround)
-                                {
-                                    t.grow_horizontally_done = true;
-                                    if (t.Location.StackID != startPosition)
+                                    Grid.CellID absoluteTarget = t.Location + target;
+                                    if (absoluteTarget.IsValid)
                                     {
-                                        // t.selfTransform = true;
-                                        t.tryTransferEnergy = true;
+                                        if (!Helper.isThereNothingAboveMe(absoluteTarget.TopNeighbor))
+                                            Technite.someoneOutThereBeggingForEnergy = true;
+
+                                        t.SetNextTask(Technite.Task.GrowTo, target);
+                                        break;
                                     }
                                 }
                                 else
                                 {
+                                    //if (t.consumeAround)
+                                    //{
+                                    t.grow_horizontally_done = true;
+                                    //    if (t.Location.StackID != startPosition)
+                                    //    {
+                                    //        // t.selfTransform = true;
+                                    //        t.tryTransferEnergy = true;
+                                    //    }
+                                    //}
+                                    //else
+                                    //{
                                     t.consumeAround = true;
+                                    //}
                                 }
-                            }
                             t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
                             break;
                         }
 
                     case MyState.consumeAround: // If next to a mountain, consume it
-                        if(t.CanConsume)
+                        if (t.CanConsume)
                         {
-                            if(t.consumeAround)
+                            if (t.consumeAround)
                             {
                                 target = Helper.GetDeltaConsumeTarget(t.Location, 0);
-                                if(target != Grid.RelativeCell.Invalid)
+                                if (target != Grid.RelativeCell.Invalid)
                                 {
                                     t.SetNextTask(Technite.Task.GrowTo, target);
                                     break;
                                 }
                                 else
                                 {
-                                    if(!Technite.someoneOutThereBeggingForEnergy)
-                                    {
-                                        t.consumeAround = false;
-                                        t.tryTransferEnergy = true;
-                                    }
+                                    if (Technite.someoneOutThereBeggingForEnergy) t.tryTransferEnergy = true;
+                                    else t.selfTransform = true;
+                                    t.consumeAround = false;
+                                    t.grow_horizontally_done = false;
                                 }
                             }
                         }
@@ -733,21 +769,24 @@ namespace TechniteLogic
 
                     case MyState.transferEnergy: // a technite transfers his energy except for 5 (SplitCosts)
                         //if(t.CanTransfer)
-                        if(t.CurrentResources.Energy > 5)
+                        if (t.CurrentResources.Energy > 9)
                         {
-                            if(t.tryTransferEnergy)
+                            if (t.tryTransferEnergy)
                             {
                                 target = Helper.GetBeggingForEnergyNeighborTechnite(t.Location);
-                                
+
                                 if (target != Grid.RelativeCell.Invalid)
                                 {
-                                    byte unusableEnergy = (byte)(t.CurrentResources.Energy - 5);
-                                    t.SetNextTask(Technite.Task.TransferEnergyTo, target, unusableEnergy);
-                                    break;
+                                    byte unusableEnergy = (byte)(t.CurrentResources.Energy - 10);
+                                    if (unusableEnergy > 0)
+                                    {
+                                        t.SetNextTask(Technite.Task.TransferEnergyTo, target, unusableEnergy);
+                                        break;
+                                    }
                                 }
                                 else
                                 {
-                                    if (Technite.someoneOutThereBeggingForEnergy == false)
+                                    if (!Technite.someoneOutThereBeggingForEnergy)
                                     {
                                         t.tryTransferEnergy = false;
                                         t.selfTransform = true;
@@ -757,7 +796,7 @@ namespace TechniteLogic
                         }
                         t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
                         break;
-                   
+
                     case MyState.doNothing: // do nothing
                         {
                             t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
