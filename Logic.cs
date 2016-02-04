@@ -416,18 +416,18 @@ namespace TechniteLogic
             /// <param name="location"></param>
             /// <param name="f">Evaluation function. Must return 0/NotAChoice if not applicable, and >1 otherwise. Higher values indicate higher probability</param>
             /// <returns>Chocen relative cell, or Grid.RelativeCell.Invalid if none was found.</returns>
-            public static Grid.RelativeCell EvaluateBeggingForEnergyNeighborTechnites(Grid.CellID location, Func<Grid.RelativeCell, Technite, bool> f)
+            public static Grid.RelativeCell EvaluateBeggingForEnergyNeighborTechnites(Grid.CellID location, Func<Grid.RelativeCell, Technite, int> f)
             {
                 return EvaluateBeggingChoices(location, (relative, cell) =>
                 {
                     Grid.Content content = Grid.World.GetCell(cell).content;
                     if (content != Grid.Content.Technite)
-                        return false;
+                        return NotAChoice;
                     Technite other = Technite.Find(cell);
                     if (other == null)
                     {
                         Out.Log(Significance.Unusual, "Located neighboring technite in " + cell + ", but cannot find reference to class instance");
-                        return false;
+                        return NotAChoice;
                     }
                     return f(relative, other);
                 }
@@ -441,39 +441,36 @@ namespace TechniteLogic
             /// <param name="location">Location to evaluate the neighborhood of</param>
             /// <param name="f">Evaluation function. Must return 0/NotAChoice if not applicable, and >1 otherwise. Higher values indicate higher probability</param>
             /// <returns></returns>
-            public static Grid.RelativeCell EvaluateBeggingChoices(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, bool> f)
+            public static Grid.RelativeCell EvaluateBeggingChoices(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
             {
                 options.Clear();
+                int total = 0;
                 foreach (var n in location.GetRelativeNeighbors())
                 {
                     Grid.CellID cellLocation = location + n;
                     if (Grid.World.GetCell(cellLocation).content == Grid.Content.Technite)
                     {
-                        bool q = f(n, cellLocation);  // q = is Technite n begging for Energy
-                        //options.Add(new KeyValuePair<bool, Grid.RelativeCell>(q, n));
-                        if (q)
+                        int q = f(n, cellLocation);  // q = is Technite n begging for Energy
+                        if (q > 0)
                         {
-                            return n;
+                            total += q;
+                            options.Add(new KeyValuePair<int, Grid.RelativeCell>(q, n));
                         }
                     }
 
                 }
-                //if (options.Count == 0)
-                //    return Grid.RelativeCell.Invalid;
-                //if (options.Count == 1)
-                //    return options[0].Value;
-                ////int c = random.Next(total);
-                //int minResource = byte.MaxValue;
-                //Grid.RelativeCell minOption = Grid.RelativeCell.Invalid;
+                if (options.Count == 0)
+                    return Grid.RelativeCell.Invalid;
+                if (options.Count == 1)
+                    return options[0].Value;
+                int c = random.Next(total);
                 //foreach (var o in options)
                 //{
-                //    if (minResource >= o.Key)   // make a new options field with all minResource and choose a random option
-                //    {
-                //        minResource = o.Key;
-                //        minOption = o.Value;
-                //    }
+                //    if (c <= o.Key)
+                //        return o.Value;
+                //    c -= o.Key;
                 //}
-                return Grid.RelativeCell.Invalid;
+                return options[c].Value;
             }
 
             /// <summary>
@@ -517,7 +514,9 @@ namespace TechniteLogic
                 return EvaluateBeggingForEnergyNeighborTechnites(location, (relative, technite) =>
                 {
                     bool needMoreEnergy = technite.needEnergy;
-                    return needMoreEnergy;
+                    if (needMoreEnergy)
+                        return 1;
+                    else return NotAChoice;
                 });
             }
 
@@ -564,7 +563,7 @@ namespace TechniteLogic
             {
                 if (!tech.Status.Lit)
                 {
-                    if (tech.CurrentResources.Energy < 6)
+                    if (tech.CurrentResources.Energy < 6)                       //ist 10 sollte vll weniger sein, um puffer zu erzeugen      
                     {
                         tech.needEnergy = true;
                         Technite.someoneOutThereBeggingForEnergy = true;
@@ -595,7 +594,7 @@ namespace TechniteLogic
                 }
                 else if (t.CurrentResources.Matter >= 5)
                 {
-                    if (t.CurrentResources.Energy > 5)
+                    if (t.CurrentResources.Energy > 9)                          //ist 9 sollte vll weniger sein, um puffer zu erzeugen
                     {
                         t.needEnergy = false;
                         if (!t.grow_horizontally_done)
@@ -605,10 +604,6 @@ namespace TechniteLogic
                         else if (t.Location.StackID == startPosition)
                             if (t.CurrentResources.Matter >= 15 && !Technite.someoneOutThereBeggingForEnergy) t.mystate = MyState.growUp;
                             else t.mystate = MyState.gnawOrConsume;
-                        //else if (t.consumeAround)
-                        //{
-                        //    t.mystate = MyState.consumeAround;
-                        //}
                         else if (t.tryTransferEnergy)
                         {
                             t.mystate = MyState.transferEnergy;
@@ -669,7 +664,7 @@ namespace TechniteLogic
                             {
                                 if (!tech.Status.Lit)
                                 {
-                                    if (tech.CurrentResources.Energy < 6)
+                                    if (tech.CurrentResources.Energy < 6)                      //ist 10 sollte vll weniger sein, um puffer zu erzeugen 
                                     {
                                         tech.needEnergy = true;
                                         Technite.someoneOutThereBeggingForEnergy = true;
@@ -679,7 +674,8 @@ namespace TechniteLogic
                                 }
                                 else Technite.someoneOutThereBeggingForEnergy = false;
                             }
-                            if(Technite.Count == 1){
+                            if (Technite.Count == 1)
+                            {
                                 if (!Technite.someoneOutThereBeggingForEnergy)
                                 {
                                     target = new Grid.RelativeCell(15, 1);
@@ -783,6 +779,7 @@ namespace TechniteLogic
                                         t.SetNextTask(Technite.Task.TransferEnergyTo, target, unusableEnergy);
                                         break;
                                     }
+                                    else t.needEnergy = true;
                                 }
                                 else
                                 {
@@ -794,6 +791,15 @@ namespace TechniteLogic
                                 }
                             }
                         }
+                        //if (t.enoughIsEnough == 3)
+                        //{
+                        //    t.tryTransferEnergy = false;
+                        //    t.selfTransform = true;
+                        //}
+                        //else
+                        //{
+                        //    t.enoughIsEnough++;
+                        //}
                         t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
                         break;
 

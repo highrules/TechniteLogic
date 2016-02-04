@@ -26,6 +26,8 @@ namespace TechniteLogic
             SplitMatterCost = 5,
             EnergyPackageSize = 5,
             MatterPackageSize = 5;
+        public int
+            enoughIsEnough = 0;
         public static bool
             someoneOutThereBeggingForEnergy = false;
 
