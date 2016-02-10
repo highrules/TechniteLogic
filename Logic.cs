@@ -565,9 +565,12 @@ namespace TechniteLogic
                 {
                     if (tech.CurrentResources.Energy < 6)                       //ist 10 sollte vll weniger sein, um puffer zu erzeugen      
                     {
-                        tech.needEnergy = true;
-                        Technite.someoneOutThereBeggingForEnergy = true;
-                        break;
+                        if (tech.selfTransform == false)
+                        {
+                            tech.needEnergy = true;
+                            Technite.someoneOutThereBeggingForEnergy = true;
+                            break;
+                        }
                     }
                     else Technite.someoneOutThereBeggingForEnergy = false;
                 }
@@ -594,7 +597,7 @@ namespace TechniteLogic
                 }
                 else if (t.CurrentResources.Matter >= 5)
                 {
-                    if (t.CurrentResources.Energy > 9)                          //ist 9 sollte vll weniger sein, um puffer zu erzeugen
+                    if (t.CurrentResources.Energy >= 9)                          //ist 9 sollte vll weniger sein, um puffer zu erzeugen
                     {
                         t.needEnergy = false;
                         if (!t.grow_horizontally_done)
@@ -617,10 +620,19 @@ namespace TechniteLogic
                     }
                     else
                     {
-                        if (t.Status.Lit)
-                            t.mystate = MyState.doNothing;
-                        else
-                            t.mystate = MyState.callForEnergy;             // not waiting anymore, but calling for energy now
+                        if (!t.Status.Lit)
+                        {
+                            t.needEnergy = true;
+                            if (t.CurrentResources.Matter <= 10) t.mystate = MyState.gnawOrConsume;
+                            else if(t.grow_horizontally_done)
+                            {
+                                t.mystate = MyState.transferEnergy;
+                                //t.tryTransferEnergy = true;
+                                t.selfTransform = true;             // not waiting anymore, but calling for energy now
+                            }
+                            else t.mystate = MyState.callForEnergy;
+                        }
+                        else t.mystate = MyState.doNothing;
                     }
                 }
                 else if (!t.Status.Lit && !t.CanGnawAt)
@@ -666,9 +678,12 @@ namespace TechniteLogic
                                 {
                                     if (tech.CurrentResources.Energy < 6)                      //ist 10 sollte vll weniger sein, um puffer zu erzeugen 
                                     {
-                                        tech.needEnergy = true;
-                                        Technite.someoneOutThereBeggingForEnergy = true;
-                                        break;
+                                        if (tech.selfTransform == false)
+                                        {
+                                            tech.needEnergy = true;
+                                            Technite.someoneOutThereBeggingForEnergy = true;
+                                            break;
+                                        }
                                     }
                                     else Technite.someoneOutThereBeggingForEnergy = false;
                                 }
@@ -765,32 +780,31 @@ namespace TechniteLogic
 
                     case MyState.transferEnergy: // a technite transfers his energy except for 5 (SplitCosts)
                         //if(t.CanTransfer)
-                        if (t.CurrentResources.Energy > 9)
-                        {
+                        //if (t.CurrentResources.Energy > 9)                                            //redundant
+                        //{
                             if (t.tryTransferEnergy)
                             {
                                 target = Helper.GetBeggingForEnergyNeighborTechnite(t.Location);
 
                                 if (target != Grid.RelativeCell.Invalid)
                                 {
-                                    byte unusableEnergy = (byte)(t.CurrentResources.Energy - 10);
+                                    byte unusableEnergy = (byte)(t.CurrentResources.Energy / 2);       //testweise von 10 auf / 2 gesetzt
                                     if (unusableEnergy > 0)
                                     {
                                         t.SetNextTask(Technite.Task.TransferEnergyTo, target, unusableEnergy);
                                         break;
                                     }
-                                    else t.needEnergy = true;
+                                    //else t.needEnergy = true;
                                 }
                                 else
                                 {
                                     if (!Technite.someoneOutThereBeggingForEnergy)
                                     {
-                                        t.tryTransferEnergy = false;
                                         t.selfTransform = true;
                                     }
                                 }
                             }
-                        }
+                        //}
                         //if (t.enoughIsEnough == 3)
                         //{
                         //    t.tryTransferEnergy = false;
