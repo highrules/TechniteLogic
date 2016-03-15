@@ -290,6 +290,22 @@ namespace TechniteLogic
                 , delta);
             }
 
+            // dont split here - just check for possible targets
+            public static Grid.RelativeCell GetDeltaPossibleSplitTarget(Grid.CellID location, int delta)
+            {
+                return EvaluateDeltaChoices(location, (relative, cell) =>
+                {
+                    if (Grid.World.GetCell(cell).content == Grid.Content.Clear || Grid.World.GetCell(cell).content == Grid.Content.Water)
+                    // check for different faction e.g. enemy technites
+                    {
+                        if (Grid.World.GetCell(cell).content != Grid.Content.Foundation && Grid.World.GetCell(cell).content != Grid.Content.Technite) //baut auch in Berge
+                                return 1;
+                    }
+                    return NotAChoice;
+                }
+                , delta);
+            }
+
             /// <summary>
             /// Determines a feasible, possibly ideal neighbor technite target, based on a given evaluation function
             /// von uns
@@ -325,7 +341,7 @@ namespace TechniteLogic
             public static Grid.RelativeCell EvaluateMinResourceTransferChoices(Grid.CellID location, Func<Grid.RelativeCell, Grid.CellID, int> f)
             {
                 options.Clear();
-                foreach (var n in location.GetRelativeNeighbors())
+                foreach (var n in location.GetRelativeDeltaNeighbors(-1))
                 {
                     Grid.CellID cellLocation = location + n;
                     if (Grid.World.GetCell(cellLocation).content == Grid.Content.Technite)
@@ -402,14 +418,12 @@ namespace TechniteLogic
 
         static uint startPosition;
         static bool firstRound = true;
-        static byte counter = 0;
         public enum MyState
         {
             gnawOrConsume = 0,
             transformFoundation = 1,
             growUp = 2,
             growDown = 3,
-            //consumeAround = 4,
             transfer = 5,
             doNothing = 255,
         };
@@ -419,8 +433,11 @@ namespace TechniteLogic
             Out.Log(Significance.Common, "ProcessTechnites()");
 
             Grid.RelativeCell target;
+            Grid.CellID absoluteTarget;
+            bool hasNeighborTechnite = false;
             foreach (Technite t in Technite.All)
             {
+                hasNeighborTechnite = false;
                 if (firstRound)
                 {
                     startPosition = t.Location.StackID;
@@ -430,16 +447,11 @@ namespace TechniteLogic
 
                 if(t.selfTransform)
                 {
-                    // t.mystate = t.CurrentResources.Matter >= 10 ? t.mystate = 1 : t.mystate = 0;
                     if(t.CurrentResources.Matter >= 10)
                         t.mystate = MyState.transformFoundation;
                     else
                         t.mystate = MyState.gnawOrConsume;
                 }
-                //else if (t.tryTransfer)
-                //{
-                //    t.mystate = MyState.transfer;
-                //}
                 else
                 {
                     if (t.CurrentResources.Matter >= 5)
@@ -453,10 +465,10 @@ namespace TechniteLogic
                                 else
                                 {
                                     if (t.CurrentResources.Matter >= 15) // split and enough Matter to transform
-                                        //if (Technite.Count == 1 || counter == 100)
+                                        if (Technite.Count == 1)
                                             t.mystate = MyState.growUp;
-                                        //else 
-                                        //    counter++;
+                                        else
+                                            t.mystate = MyState.transfer;
                                     else
                                         t.mystate = MyState.gnawOrConsume;
                                 }
@@ -464,12 +476,9 @@ namespace TechniteLogic
                             else
                             {
                                 if (t.done)
-                                {
-                                    //if (t.consumeAround)
-                                    //    t.mystate = MyState.consumeAround;
-                                    //else 
+                                { 
                                     if (t.CurrentResources.Matter >= 10)
-                                        t.mystate = MyState.transformFoundation;
+                                        t.mystate = MyState.transfer;
                                     else
                                         t.mystate = MyState.gnawOrConsume;
                                 }
@@ -521,7 +530,7 @@ namespace TechniteLogic
                             if (t.CanSplit)
                             {
                                 target = new Grid.RelativeCell(15, 1);
-                                Grid.CellID absoluteTarget = t.Location + target;
+                                absoluteTarget = t.Location + target;
                                 if (target != Grid.RelativeCell.Invalid)
                                 {
                                     if(absoluteTarget.IsValid)
@@ -542,6 +551,7 @@ namespace TechniteLogic
                         }
                     case MyState.growDown: // grow down
                         {
+                            
                             if (t.CanSplit)
                             {
                                 target = Helper.GetDeltaSplitTarget(t.Location, -1);
@@ -553,76 +563,92 @@ namespace TechniteLogic
                                         t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
                                         break;
                                     }
-
-                                    if (Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite)
-                                    {
-                                        t.SetNextTask(Technite.Task.GrowTo, target);
-                                        break;
-                                    }
+                                    t.SetNextTask(Technite.Task.GrowTo, target);
+                                    break;
                                 }
                                 else if (t.Location.StackID == startPosition)
                                 {
                                     t.done = true;
                                     //t.selfTransform = true;
                                     //t.consumeAround = true;
-
                                 }
                                 else
                                 {
-                                    t.done = true;
-                                    t.selfTransform = true;
+                                    target = Helper.GetDeltaPossibleSplitTarget(t.Location, -1);
+                                    if (target == Grid.RelativeCell.Invalid)
+                                    {
+                                        t.done = true;
+                                        foreach (var n in t.Location.GetRelativeDeltaNeighbors(-1))
+                                        {
+                                            absoluteTarget = t.Location + n;
+                                            if (absoluteTarget.IsValid)
+                                            {
+                                                if (Grid.World.GetCell(absoluteTarget).content == Grid.Content.Technite)
+                                                {
+                                                    hasNeighborTechnite = true;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        if (!hasNeighborTechnite)
+                                        {
+                                            t.selfTransform = true;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        goto case MyState.transfer;
+                                    }
                                 }
                             }
                             t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
                             break;
                         }
-                    //case MyState.consumeAround :
-                    //    {
-                    //        target = Helper.GetDeltaConsumeTarget(t.Location, 0);
-                    //        if (target != Grid.RelativeCell.Invalid)
-                    //        {
-                    //            t.SetNextTask(Technite.Task.ConsumeSurroundingCell, target);
-                    //            break;
-                    //        }
-                    //        else if (t.Location.StackID != startPosition)
-                    //        {
-                    //            t.selfTransform = true;
-                    //            //t.tryTransfer = true;
-                    //            t.consumeAround = false;
-                    //        }
-                    //        t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
-                    //        break;
-                    //    }
-                    //case MyState.transfer: // gnaw matter and sent it up
+                    case MyState.transfer: // gnaw matter and sent it up
 
-                    //    target = Helper.GetEnergyNeighbourTechnite(t.Location);
-                    //    if (t.CurrentResources.Energy >= 5 && target != Grid.RelativeCell.Invalid)
-                    //    {
-                    //        t.SetNextTask(Technite.Task.TransferEnergyTo, target, 5);
-                    //        break;
-                    //    }
-
-                    //    if (t.CurrentResources.Matter >= 5)
-                    //    {
-                    //        target = Helper.GetMatterNeighbourTechnite(t.Location);
-                    //        if (target != Grid.RelativeCell.Invalid)
-                    //        {
-                    //            t.SetNextTask(Technite.Task.TransferMatterTo, target, 5);
-                    //            break;
-                    //        }
-                    //    }
-
-                    //    target = Helper.GetMaxMatterGnawChoice(t.Location);
-                    //    if (target != Grid.RelativeCell.Invalid)
-                    //    {
-                    //        t.SetNextTask(Technite.Task.GnawAtSurroundingCell, target);
-                    //        break;
-                    //    }
-
-                        
-
-                    //    t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
-                    //    break;
+                        foreach (var n in t.Location.GetRelativeDeltaNeighbors(-1))
+                        {
+                            absoluteTarget = t.Location + n;
+                            if (absoluteTarget.IsValid)
+                            {
+                                if (Grid.World.GetCell(absoluteTarget).content == Grid.Content.Technite)
+                                {
+                                    hasNeighborTechnite = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!hasNeighborTechnite)
+                        {
+                            if (t.Location.StackID != startPosition)
+                                t.selfTransform = true;
+                        }
+                        else
+                        {
+                            target = Helper.GetEnergyNeighbourTechnite(t.Location);
+                            if (t.CurrentResources.Energy >= 5 && target != Grid.RelativeCell.Invalid && t.LastTask != Technite.Task.TransferEnergyTo)
+                            {
+                                t.SetNextTask(Technite.Task.TransferEnergyTo, target, 5);
+                                break;
+                            }
+                            if (t.CurrentResources.Matter >= 5 && t.LastTask == Technite.Task.TransferEnergyTo)
+                            {
+                                target = Helper.GetMatterNeighbourTechnite(t.Location);
+                                if (target != Grid.RelativeCell.Invalid)
+                                {
+                                    t.SetNextTask(Technite.Task.TransferMatterTo, target, 5);
+                                    break;
+                                }
+                            }
+                            target = Helper.GetMaxMatterGnawChoice(t.Location);
+                            if (target != Grid.RelativeCell.Invalid)
+                            {
+                                t.SetNextTask(Technite.Task.GnawAtSurroundingCell, target);
+                                break;
+                            }
+                        }
+                        t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
+                        break;
                     case MyState.doNothing: // do nothing
                         {
                             t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
