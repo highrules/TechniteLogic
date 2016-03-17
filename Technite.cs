@@ -747,20 +747,6 @@ namespace TechniteLogic
 				Out.Log(Significance.Unusual, windowMissedThisRound + " technite(s) missed their operation window this round.");
 			windowMissedThisRound = 0;
 
-			//int badCount = 0;
-			//foreach (Grid.CellStack stack in Grid.World.CellStacks)
-			//{
-			//	foreach (Grid.CellStack.Cell cell in stack.volumeCell)
-			//	{
-			//		if (cell.content == Grid.Content.Undefined)
-			//		{
-			//			badCount++;
-
-			//		}
-			//	}
-			//}
-			//if (badCount > 0)
-			//	Out.Log(Significance.Unusual, "Found terrain holes in "+badCount+"/"+(Grid.World.CellStacks.Length*Grid.CellStack.LayersPerStack)+" locations");
 		}
 
 		/// <summary>
