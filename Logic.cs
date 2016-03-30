@@ -158,7 +158,7 @@ namespace TechniteLogic
                 );
             }
 
-            /*--------------------------------------------------------------------------------*/
+            /*-----------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
             /// <summary>
             /// Returns a random cell in the given delta
@@ -204,13 +204,9 @@ namespace TechniteLogic
             {
                 return EvaluateDeltaChoices(location, (relative, cell) =>
                 {
-                    //if (Grid.World.GetCell(cell.BottomNeighbor).content != Grid.Content.Technite)
-                    //{
                     Grid.Content content = Grid.World.GetCell(cell).content;
                     if (content != Grid.Content.Foundation && content != Grid.Content.Technite && content != Grid.Content.Water && content != Grid.Content.Clear)
-                    //if (Technite.EnoughSupportHere(cell))
                         return 1;
-                    //}
                     return NotAChoice;
                 }
                 , delta);
@@ -227,11 +223,9 @@ namespace TechniteLogic
                 return EvaluateMaxMatterGnawChoices(location, (relative, cell) =>
                 {
                     Grid.Content content = Grid.World.GetCell(cell).content;
-                    int yield = Technite.MatterYield[(int)content]; //zero is zero, no exceptions
-                    // verhindert das techniten über andere techniten bauen und damit lit = false werden könnte
-                    if (Grid.World.GetCell(cell).content != Grid.Content.Technite)
+                    int yield = Technite.MatterYield[(int)content];                 //zero is zero, no exceptions
+                    if (Grid.World.GetCell(cell).content != Grid.Content.Technite)  // verhindert das techniten über andere techniten bauen und damit lit = false werden könnte
                         return yield;
-                    //int energyYield = Technite.EnergyYieldAtLayer[location.Layer];
                     return NotAChoice;
                 }
                 );
@@ -272,12 +266,16 @@ namespace TechniteLogic
                 return maxOption;
             }
 
+            /// <summary>
+            /// Returns a suitable cell to split to
+            /// von uns
+            /// </summary>
+            /// <returns></returns>
             public static Grid.RelativeCell GetDeltaSplitTarget(Grid.CellID location, int delta)
             {
                 return EvaluateDeltaChoices(location, (relative, cell) =>
                 {
                     if (Grid.World.GetCell(cell).content == Grid.Content.Clear || Grid.World.GetCell(cell).content == Grid.Content.Water)
-                    // check for different faction e.g. enemy technites
                     {
                         if (Grid.World.GetCell(cell).content != Grid.Content.Foundation && Grid.World.GetCell(cell).content != Grid.Content.Technite) //baut auch in Berge
                         {
@@ -290,7 +288,12 @@ namespace TechniteLogic
                 , delta);
             }
 
-            // dont split here - just check for possible targets
+            /// <summary>
+            /// Returns a possibly suitable cell to split to
+            /// DO NOT use to split - just check for possible targets
+            /// von uns
+            /// </summary>
+            /// <returns></returns>
             public static Grid.RelativeCell GetDeltaPossibleSplitTarget(Grid.CellID location, int delta)
             {
                 return EvaluateDeltaChoices(location, (relative, cell) =>
@@ -355,7 +358,6 @@ namespace TechniteLogic
                     return Grid.RelativeCell.Invalid;
                 if (options.Count == 1)
                     return options[0].Value;
-                //int c = random.Next(total);
                 int minResource = byte.MaxValue;
                 Grid.RelativeCell minOption = Grid.RelativeCell.Invalid;
                 foreach (var o in options)
@@ -367,14 +369,6 @@ namespace TechniteLogic
                     }
                 }
                 return minOption;
-                //foreach (var o in options)
-                //{
-                //    if (c <= o.Key)
-                //        return o.Value;
-                //    c -= o.Key;
-                //}
-                //Out.Log(Significance.ProgramFatal, "Logic error");
-                //return Grid.RelativeCell.Invalid;
             }
 
             /// <summary>
@@ -406,9 +400,9 @@ namespace TechniteLogic
                     return curMatter;
                 });
             }
-            
 
-            /*--------------------------------------------------------------------------------*/
+
+            /*-----------------------------------------------------------------------------------------------------------------------------------------------------------*/
         }
 
         private static Random random = new Random();
@@ -520,9 +514,7 @@ namespace TechniteLogic
                         }
                     case MyState.transformFoundation: // transform to foundation
                         {
-                            // if(t.CanTransform) //gibts nicht
                             t.SetNextTask(Technite.Task.SelfTransformToType, Grid.RelativeCell.Self, 7);
-                            // t.done = true;
                             break;
                         }
                     case MyState.growUp: // grow up
@@ -569,8 +561,6 @@ namespace TechniteLogic
                                 else if (t.Location.StackID == startPosition)
                                 {
                                     t.done = true;
-                                    //t.selfTransform = true;
-                                    //t.consumeAround = true;
                                 }
                                 else
                                 {
@@ -604,7 +594,7 @@ namespace TechniteLogic
                             t.SetNextTask(Technite.Task.None, Grid.RelativeCell.Self);
                             break;
                         }
-                    case MyState.transfer: // gnaw matter and sent it up
+                    case MyState.transfer: // check for neighbors on lower level and sent energy up or gnaw matter
 
                         foreach (var n in t.Location.GetRelativeDeltaNeighbors(-1))
                         {
